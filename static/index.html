@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>克隆管理系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f5f5f5;
+        }
+        .navbar {
+            box-shadow: 0 2px 4px rgba(0,0,0,.1);
+        }
+        .main-container {
+            margin-top: 20px;
+        }
+        .card {
+            box-shadow: 0 2px 4px rgba(0,0,0,.1);
+            margin-bottom: 20px;
+        }
+        .status-badge {
+            font-size: 0.85rem;
+        }
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+        }
+        .project-actions {
+            white-space: nowrap;
+        }
+        .upload-area {
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background-color: #f8f9fa;
+        }
+        .upload-area:hover {
+            border-color: #0d6efd;
+            background-color: #e7f1ff;
+        }
+        .upload-area.drag-over {
+            border-color: #0d6efd;
+            background-color: #cfe2ff;
+        }
+        .upload-preview img {
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="bi bi-globe"></i> 克隆管理系统
+            </a>
+            <div class="navbar-nav ms-auto" id="userInfo" style="display: none;">
+                <span class="navbar-text text-white me-3">
+                    <i class="bi bi-person-circle"></i> <span id="username"></span>
+                </span>
+                <button class="btn btn-outline-light btn-sm" onclick="logout()">
+                    <i class="bi bi-box-arrow-right"></i> 退出
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 登录页面 -->
+    <div id="loginPage" class="login-container">
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title text-center mb-4">
+                    <i class="bi bi-shield-lock"></i> 用户登录
+                </h3>
+                <form id="loginForm">
+                    <div class="mb-3">
+                        <label class="form-label">用户名</label>
+                        <input type="text" class="form-control" id="loginUsername" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">密码</label>
+                        <input type="password" class="form-control" id="loginPassword" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">登录</button>
+                </form>
+                <div class="text-center mt-3">
+                    <small>还没有账号？<a href="#" onclick="showRegister()">立即注册</a></small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 注册页面 -->
+    <div id="registerPage" class="login-container" style="display: none;">
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title text-center mb-4">
+                    <i class="bi bi-person-plus"></i> 用户注册
+                </h3>
+                <form id="registerForm">
+                    <div class="mb-3">
+                        <label class="form-label">用户名</label>
+                        <input type="text" class="form-control" id="regUsername" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">邮箱</label>
+                        <input type="email" class="form-control" id="regEmail" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">密码</label>
+                        <input type="password" class="form-control" id="regPassword" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">注册</button>
+                </form>
+                <div class="text-center mt-3">
+                    <small>已有账号？<a href="#" onclick="showLogin()">立即登录</a></small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主页面 -->
+    <div id="mainPage" class="container main-container" style="display: none;">
+        <!-- 操作栏 -->
+        <div class="card">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h5 class="mb-0"><i class="bi bi-folder"></i> 项目管理</h5>
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn btn-primary" onclick="showCreateModal()">
+                            <i class="bi bi-plus-circle"></i> 创建项目
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 项目列表 -->
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>项目名称</th>
+                                <th>域名</th>
+                                <th>源网址</th>
+                                <th>状态</th>
+                                <th>创建时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="projectList">
+                            <tr>
+                                <td colspan="6" class="text-center">加载中...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 创建/编辑项目模态框 -->
+    <div class="modal fade" id="projectModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="projectModalTitle">创建项目</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="projectForm">
+                        <input type="hidden" id="projectId">
+                        <div class="mb-3">
+                            <label class="form-label">项目名称 *</label>
+                            <input type="text" class="form-control" id="projectName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">域名 *</label>
+                            <input type="text" class="form-control" id="projectDomain" required 
+                                   placeholder="例如: example.com">
+                            <small class="form-text text-muted">用户将通过此域名访问克隆的页面</small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">源网址</label>
+                            <input type="url" class="form-control" id="projectUrl" 
+                                   placeholder="例如: https://example.com">
+                            <small class="form-text text-muted">要克隆的网页地址</small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">源截图</label>
+                            <div class="upload-area" id="uploadArea">
+                                <input type="file" id="screenshotFile" accept="image/*" style="display: none;">
+                                <div class="upload-placeholder" id="uploadPlaceholder">
+                                    <i class="bi bi-cloud-upload" style="font-size: 3rem; color: #6c757d;"></i>
+                                    <p class="mt-2 mb-1">拖拽图片到此处或点击上传</p>
+                                    <small class="text-muted">支持 JPG, PNG, GIF, WebP 格式，最大 10MB</small>
+                                </div>
+                                <div class="upload-preview" id="uploadPreview" style="display: none;">
+                                    <img id="previewImage" src="" alt="预览" style="max-width: 100%; max-height: 200px;">
+                                    <button type="button" class="btn btn-sm btn-danger mt-2" onclick="clearScreenshot()">
+                                        <i class="bi bi-trash"></i> 删除
+                                    </button>
+                                </div>
+                                <div class="upload-progress" id="uploadProgress" style="display: none;">
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                             role="progressbar" style="width: 100%"></div>
+                                    </div>
+                                    <small class="text-muted mt-1">上传中...</small>
+                                </div>
+                            </div>
+                            <input type="hidden" id="projectScreenshot">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="saveProject()">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/app.js"></script>
+</body>
+</html>
