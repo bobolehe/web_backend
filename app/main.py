@@ -1,6 +1,15 @@
 """
 FastAPI 应用主入口
 """
+import os
+import sys
+from pathlib import Path
+
+# 兼容直接执行: python app/main.py
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -11,7 +20,6 @@ from app.database import init_db
 from app.routers import auth, projects
 from app.routers import upload
 from app.middleware.domain_router import DomainRouterMiddleware
-import os
 
 # 创建 FastAPI 应用实例
 app = FastAPI(
