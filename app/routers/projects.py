@@ -205,7 +205,7 @@ async def clone_project(
         )
     
     # 添加后台任务
-    background_tasks.add_task(CloneService.clone_website, db, project_id)
+    background_tasks.add_task(CloneService.clone_website, project_id)
     
     logger.info(f"User '{current_user.username}' started cloning project '{project.name}'")
     
