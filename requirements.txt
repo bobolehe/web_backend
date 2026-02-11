@@ -16,6 +16,10 @@ python-dotenv==1.0.0
 # Browser Automation
 playwright==1.41.0
 
+# HTTP Requests
+requests==2.31.0
+beautifulsoup4==4.12.3
+
 # Email
 aiosmtplib==3.0.1
 

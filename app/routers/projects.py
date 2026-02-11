@@ -213,3 +213,175 @@ async def clone_project(
         "message": "克隆任务已启动",
         "project_id": project_id
     }
+
+
+@router.post("/{project_id}/restart", summary="重新克隆并重启项目")
+async def restart_server(
+    project_id: str,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    """
+    重新克隆项目并重启HTTP服务器
+    
+    - **project_id**: 项目ID
+    
+    会先停止服务器，然后重新克隆，最后启动新服务器
+    """
+    # 检查项目是否存在
+    project = ProjectService.get_project(db, project_id)
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"项目 ID '{project_id}' 不存在"
+        )
+    
+    # 检查是否有源网址
+    if not project.source_url:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="项目未设置源网址，无法重新克隆"
+        )
+    
+    # 停止现有服务器
+    ServerManager.stop_server(project_id)
+    
+    # 添加后台任务：重新克隆
+    background_tasks.add_task(CloneService.clone_website, db, project_id)
+    
+    logger.info(f"User '{current_user.username}' restarted (re-clone) project '{project.name}'")
+    
+    return {
+        "message": "重新克隆任务已启动",
+        "project_id": project_id
+    }
+
+
+@router.post("/{project_id}/start", summary="启动项目HTTP服务器")
+async def start_server(
+    project_id: str,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    """
+    启动项目的HTTP服务器（不重新克隆）
+    
+    - **project_id**: 项目ID
+    
+    仅对已完成克隆的项目有效
+    """
+    from pathlib import Path
+    
+    # 检查项目是否存在
+    project = ProjectService.get_project(db, project_id)
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"项目 ID '{project_id}' 不存在"
+        )
+    
+    # 检查项目状态
+    if project.status != ProjectStatus.COMPLETED:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="只能启动已完成克隆的项目"
+        )
+    
+    # 检查克隆目录是否存在
+    project_dir = Path("cloned_sites") / project_id
+    if not project_dir.exists():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="项目克隆目录不存在"
+        )
+    
+    # 检查服务器是否已经在运行
+    server_info = ServerManager.get_server_info(project_id)
+    if server_info and server_info['running']:
+        return {
+            "message": "服务器已在运行",
+            "project_id": project_id,
+            "port": server_info['port'],
+            "url": server_info['url']
+        }
+    
+    # 从域名中解析端口
+    preferred_port = None
+    if project.domain and ':' in project.domain:
+        parts = project.domain.split(':')
+        try:
+            preferred_port = int(parts[-1])
+        except ValueError:
+            pass
+    
+    # 启动服务器（带反向代理）
+    port = ServerManager.start_server(
+        project_id, 
+        project_dir, 
+        preferred_port,
+        source_url=project.source_url  # 启用反向代理
+    )
+    
+    if port:
+        # 更新数据库中的端口信息
+        if project.port != str(port):
+            project.port = str(port)
+            db.commit()
+        
+        logger.info(f"User '{current_user.username}' started server for project '{project.name}' on port {port}")
+        
+        return {
+            "message": "服务器启动成功",
+            "project_id": project_id,
+            "port": port,
+            "url": f"http://127.0.0.1:{port}"
+        }
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="服务器启动失败，无法分配端口"
+        )
+
+
+@router.post("/{project_id}/stop", summary="停止项目HTTP服务器")
+async def stop_server(
+    project_id: str,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    """
+    停止项目的HTTP服务器
+    
+    - **project_id**: 项目ID
+    """
+    # 检查项目是否存在
+    project = ProjectService.get_project(db, project_id)
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"项目 ID '{project_id}' 不存在"
+        )
+    
+    # 检查服务器是否在运行
+    server_info = ServerManager.get_server_info(project_id)
+    if not server_info:
+        return {
+            "message": "服务器未运行",
+            "project_id": project_id
+        }
+    
+    # 停止服务器
+    success = ServerManager.stop_server(project_id)
+    
+    if success:
+        logger.info(f"User '{current_user.username}' stopped server for project '{project.name}'")
+        return {
+            "message": "服务器已停止",
+            "project_id": project_id
+        }
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="停止服务器失败"
+        )

@@ -218,6 +218,20 @@ function renderProjects(projects) {
                     <a href="http://127.0.0.1:${escapeHtml(project.port)}" target="_blank" class="btn btn-sm btn-info" title="访问 (端口 ${escapeHtml(project.port)})">
                         <i class="bi bi-box-arrow-up-right"></i> :${escapeHtml(project.port)}
                     </a>
+                    <button class="btn btn-sm btn-warning" onclick="restartProject('${project.id}')" title="重新克隆并重启">
+                        <i class="bi bi-arrow-repeat"></i>
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="stopServer('${project.id}')" title="停止服务器">
+                        <i class="bi bi-stop-fill"></i>
+                    </button>
+                ` : ''}
+                ${project.status === 'completed' && !project.port && project.content_path ? `
+                    <button class="btn btn-sm btn-success" onclick="startServer('${project.id}')" title="启动服务器">
+                        <i class="bi bi-play-fill"></i> 启动
+                    </button>
+                    <button class="btn btn-sm btn-warning" onclick="restartProject('${project.id}')" title="重新克隆">
+                        <i class="bi bi-arrow-repeat"></i>
+                    </button>
                 ` : ''}
                 ${project.status === 'completed' && project.content_path && !project.port ? `
                     <a href="${escapeHtml(project.content_path)}" target="_blank" class="btn btn-sm btn-info" title="查看">
@@ -561,5 +575,98 @@ async function startClone(projectId) {
     } catch (error) {
         showError('网络错误，请稍后重试');
         console.error('Start clone error:', error);
+    }
+}
+
+// 重新克隆并重启项目
+async function restartProject(projectId) {
+    if (!confirm('确定要重新克隆此项目吗？这将停止当前服务器并重新克隆网站。')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_BASE}/api/projects/${projectId}/restart`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        if (response.ok) {
+            showSuccess('重新克隆任务已启动，请稍后刷新查看结果');
+            // 3秒后自动刷新项目列表
+            setTimeout(() => {
+                loadProjects();
+            }, 3000);
+        } else {
+            const error = await response.json();
+            let errorMsg = '重新克隆失败';
+            if (typeof error.detail === 'string') {
+                errorMsg = error.detail;
+            }
+            showError(errorMsg);
+        }
+    } catch (error) {
+        showError('网络错误，请稍后重试');
+        console.error('Restart project error:', error);
+    }
+}
+
+// 启动服务器
+async function startServer(projectId) {
+    try {
+        const response = await fetch(`${API_BASE}/api/projects/${projectId}/start`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            showSuccess(`服务器启动成功！端口: ${data.port}`);
+            loadProjects();
+        } else {
+            const error = await response.json();
+            let errorMsg = '启动服务器失败';
+            if (typeof error.detail === 'string') {
+                errorMsg = error.detail;
+            }
+            showError(errorMsg);
+        }
+    } catch (error) {
+        showError('网络错误，请稍后重试');
+        console.error('Start server error:', error);
+    }
+}
+
+// 停止服务器
+async function stopServer(projectId) {
+    if (!confirm('确定要停止此项目的HTTP服务器吗？')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_BASE}/api/projects/${projectId}/stop`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        if (response.ok) {
+            showSuccess('服务器已停止');
+            loadProjects();
+        } else {
+            const error = await response.json();
+            let errorMsg = '停止服务器失败';
+            if (typeof error.detail === 'string') {
+                errorMsg = error.detail;
+            }
+            showError(errorMsg);
+        }
+    } catch (error) {
+        showError('网络错误，请稍后重试');
+        console.error('Stop server error:', error);
     }
 }
