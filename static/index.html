@@ -197,6 +197,14 @@
                             <small class="form-text text-muted">要克隆的网页地址</small>
                         </div>
                         <div class="mb-3">
+                            <label class="form-label">克隆模式</label>
+                            <select class="form-select" id="projectCloneMode">
+                                <option value="static">静态克隆 (Playwright 下载所有资源)</option>
+                                <option value="proxy">代理模式 (按需代理并缓存，推荐)</option>
+                            </select>
+                            <small class="form-text text-muted">代理模式启动更快，适合动态网站和SPA应用</small>
+                        </div>
+                        <div class="mb-3">
                             <label class="form-label">源截图</label>
                             <div class="upload-area" id="uploadArea">
                                 <input type="file" id="screenshotFile" accept="image/*" style="display: none;">

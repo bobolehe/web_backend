@@ -297,6 +297,7 @@ async function editProject(projectId) {
             document.getElementById('projectName').value = project.name;
             document.getElementById('projectDomain').value = project.domain;
             document.getElementById('projectUrl').value = project.source_url || '';
+            document.getElementById('projectCloneMode').value = project.clone_mode || 'static';
             document.getElementById('projectScreenshot').value = project.source_screenshot || '';
             
             // 显示截图预览
@@ -328,6 +329,7 @@ async function saveProject() {
     const name = document.getElementById('projectName').value.trim();
     const domain = document.getElementById('projectDomain').value.trim();
     const source_url = document.getElementById('projectUrl').value.trim() || null;
+    const clone_mode = document.getElementById('projectCloneMode').value;
     const source_screenshot = document.getElementById('projectScreenshot').value.trim() || null;
     
     if (!name || !domain) {
@@ -335,7 +337,7 @@ async function saveProject() {
         return;
     }
     
-    const data = { name, domain, source_url, source_screenshot };
+    const data = { name, domain, source_url, clone_mode, source_screenshot };
     
     try {
         const url = projectId ? `${API_BASE}/api/projects/${projectId}` : `${API_BASE}/api/projects`;

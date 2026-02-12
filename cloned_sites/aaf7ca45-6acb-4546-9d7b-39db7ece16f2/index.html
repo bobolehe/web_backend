@@ -1,0 +1,1510 @@
+<!DOCTYPE html><html dir="ltr" lang="zh" prefix="og: https://ogp.me/ns#" style="scroll-behavior: smooth;"><head>
+
+<script>
+(function() {
+    'use strict';
+    
+    const currentOrigin = window.location.origin;
+    const BLOCK_MODE = false;  // false = 只记录不阻止, true = 阻止外部请求
+    
+    console.log('[Request Interceptor] Initialized. Current origin:', currentOrigin);
+    console.log('[Request Interceptor] Block mode:', BLOCK_MODE ? 'ENABLED' : 'DISABLED (logging only)');
+    
+    // 拦截 fetch
+    const originalFetch = window.fetch;
+    window.fetch = function(...args) {
+        const url = args[0];
+        try {
+            const fullUrl = new URL(url, currentOrigin).href;
+            
+            if (!fullUrl.startsWith(currentOrigin)) {
+                console.warn('[Request Interceptor] External fetch request:', fullUrl);
+                if (BLOCK_MODE) {
+                    return Promise.reject(new Error('External requests are blocked'));
+                }
+            } else {
+                console.log('[Request Interceptor] Local fetch request:', fullUrl);
+            }
+        } catch (e) {
+            console.error('[Request Interceptor] Error parsing URL:', url, e);
+        }
+        
+        return originalFetch.apply(this, args);
+    };
+    
+    // 拦截 XMLHttpRequest
+    const originalOpen = XMLHttpRequest.prototype.open;
+    XMLHttpRequest.prototype.open = function(method, url, ...rest) {
+        try {
+            const fullUrl = new URL(url, currentOrigin).href;
+            
+            if (!fullUrl.startsWith(currentOrigin)) {
+                console.warn('[Request Interceptor] External XHR request:', method, fullUrl);
+                if (BLOCK_MODE) {
+                    throw new Error('External requests are blocked');
+                }
+            } else {
+                console.log('[Request Interceptor] Local XHR request:', method, fullUrl);
+            }
+        } catch (e) {
+            if (e.message === 'External requests are blocked') {
+                throw e;
+            }
+            console.error('[Request Interceptor] Error parsing URL:', url, e);
+        }
+        
+        return originalOpen.call(this, method, url, ...rest);
+    };
+    
+    // 监听所有未捕获的错误
+    window.addEventListener('error', function(e) {
+        console.error('[Request Interceptor] Uncaught error:', e.message, e.filename, e.lineno);
+    }, true);
+    
+    // 监听所有未处理的 Promise 拒绝
+    window.addEventListener('unhandledrejection', function(e) {
+        console.error('[Request Interceptor] Unhandled promise rejection:', e.reason);
+    });
+    
+    console.log('[Request Interceptor] Monitoring enabled');
+})();
+</script>
+
+    <link rel="dns-prefetch" href="https://maps.googleapis.com">
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+
+    <meta charset="utf-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+
+    <link rel="pingback" href="/xmlrpc.php">
+
+        <link rel="apple-touch-icon" sizes="180x180" href="/wp-content/themes/hj-wp/images/apple-touch-icon.png?v=1769751962">
+        <link rel="icon" type="image/png" sizes="32x32" href="/wp-content/themes/hj-wp/images/favicon-32x32.png?v=1769751962">
+        <link rel="icon" type="image/png" sizes="16x16" href="/wp-content/themes/hj-wp/images/favicon-16x16.png?v=1769751962">
+        <link rel="manifest" href="/wp-content/themes/hj-wp/site.webmanifest?v=1769751962">
+        <link rel="mask-icon" href="/wp-content/themes/hj-wp/images/safari-pinned-tab.svg?v=1769751962" color="#0055ff">
+        <link rel="shortcut icon" href="/wp-content/themes/hj-wp/images/favicon.ico?v=1769751962">
+
+    <meta name="msapplication-TileColor" content="#0055ff">
+        <meta name="msapplication-config" content="/wp-content/themes/hj-wp/browserconfig.xml?v=1769751962">
+    <meta name="theme-color" content="#ffffff">
+
+    <script type="text/javascript" async="" src="/c/hotjar-1641838.js"></script><script type="text/javascript" async="" src="https://www.googletagmanager.com/gtag/js?id=G-MQFHJPR7EC&amp;cx=c&amp;gtm=4e62a1"></script><script async="" src="/gtm.js"></script><script type="text/javascript" async="" src="https://analytics.tiktok.com/i18n/pixel/events.js?sdkid=CHS4A63C77U4209V1A20&amp;lib=ttq"></script><script>
+        ! function(w, d, t) {
+            w.TiktokAnalyticsObject = t;
+            var ttq = w[t] = w[t] || [];
+            ttq.methods = ["page", "track", "identify", "instances", "debug", "on", "off", "once", "ready", "alias", "group", "enableCookie", "disableCookie"], ttq.setAndDefer = function(t, e) {
+                t[e] = function() {
+                    t.push([e].concat(Array.prototype.slice.call(arguments, 0)))
+                }
+            };
+            for (var i = 0; i < ttq.methods.length; i++) ttq.setAndDefer(ttq, ttq.methods[i]);
+            ttq.instance = function(t) {
+                for (var e = ttq._i[t] || [], n = 0; n < ttq.methods.length; n++) ttq.setAndDefer(e, ttq.methods[n]);
+                return e
+            }, ttq.load = function(e, n) {
+                var i = "https://analytics.tiktok.com/i18n/pixel/events.js";
+                ttq._i = ttq._i || {}, ttq._i[e] = [], ttq._i[e]._u = i, ttq._t = ttq._t || {}, ttq._t[e] = +new Date, ttq._o = ttq._o || {}, ttq._o[e] = n || {};
+                n = document.createElement("script");
+                n.type = "text/javascript", n.async = !0, n.src = i + "?sdkid=" + e + "&lib=" + t;
+                e = document.getElementsByTagName("script")[0];
+                e.parentNode.insertBefore(n, e)
+            };
+
+            ttq.load('CHS4A63C77U4209V1A20');
+            ttq.page();
+        }(window, document, 'ttq');
+    </script>
+
+    <title>物業管理 | Housing Japan</title>
+<link href="/css/index.html" rel="stylesheet">
+    <script>
+        window.HJ = window.HJ || {};
+        window.HJ.Config = window.HJ.Config || {};
+
+        HJ.Config.api_url = 'https://api.housingjapan.com/api';
+        HJ.Config.img_url = 'https://img.housingjapan.com';
+        HJ.Config.language = 'en';
+    </script>
+
+    
+		<!-- All in One SEO 4.9.3 - aioseo.com -->
+	<meta name="description" content="提供輕鬆無壓力 東京物業管理解決方案。如果管理得宜, 其實在東京擁有投資物業很簡單。 我們提供全方位的物業管理服務, 為高級豪宅、投資住宅與整棟物業提供個人化租賃服務。 我們為您處理一切物業管理業務, 並定期向您提供報告。 我們服務日本當地客戶與海外客戶。">
+	<meta name="robots" content="max-image-preview:large">
+	<meta name="google-site-verification" content="3sCJFjJxL0vuPaNOp62VuTkKFle_HRxDNI29m90qTDA">
+	<link rel="canonical" href="/manage-cn/">
+	<meta name="generator" content="All in One SEO (AIOSEO) 4.9.3">
+		<meta property="og:locale" content="en_US">
+		<meta property="og:site_name" content="Housing Japan |  物業管理">
+		<meta property="og:type" content="article">
+		<meta property="og:title" content="物業管理 | Housing Japan">
+		<meta property="og:description" content="提供輕鬆無壓力 東京物業管理解決方案。如果管理得宜, 其實在東京擁有投資物業很簡單。 我們提供全方位的物業管理服務, 為高級豪宅、投資住宅與整棟物業提供個人化租賃服務。 我們為您處理一切物業管理業務, 並定期向您提供報告。 我們服務日本當地客戶與海外客戶。">
+		<meta property="og:url" content="/manage-cn/">
+		<meta property="og:image" content="https://cdn.housingjapan.com/wp-content/uploads/2024/06/18115234/manage__header-scaled.jpg">
+		<meta property="og:image:secure_url" content="https://cdn.housingjapan.com/wp-content/uploads/2024/06/18115234/manage__header-scaled.jpg">
+		<meta property="og:image:width" content="2560">
+		<meta property="og:image:height" content="1280">
+		<meta property="article:published_time" content="2024-06-18T02:53:34+00:00">
+		<meta property="article:modified_time" content="2024-06-20T05:34:03+00:00">
+		<meta property="article:publisher" content="https://www.facebook.com/TokyoHomes">
+		<meta name="twitter:card" content="summary">
+		<meta name="twitter:title" content="物業管理 | Housing Japan">
+		<meta name="twitter:description" content="提供輕鬆無壓力 東京物業管理解決方案。如果管理得宜, 其實在東京擁有投資物業很簡單。 我們提供全方位的物業管理服務, 為高級豪宅、投資住宅與整棟物業提供個人化租賃服務。 我們為您處理一切物業管理業務, 並定期向您提供報告。 我們服務日本當地客戶與海外客戶。">
+		<meta name="twitter:image" content="https://cdn.housingjapan.com/wp-content/uploads/2024/06/18115234/manage__header-scaled.jpg">
+		<script type="application/ld+json" class="aioseo-schema">
+			{"@context":"https:\/\/schema.org","@graph":[{"@type":"BreadcrumbList","@id":"https:\/\/housingjapan.com\/manage-cn\/#breadcrumblist","itemListElement":[{"@type":"ListItem","@id":"https:\/\/housingjapan.com#listItem","position":1,"name":"Home","item":"https:\/\/housingjapan.com","nextItem":{"@type":"ListItem","@id":"https:\/\/housingjapan.com\/manage-cn\/#listItem","name":"\u7269\u696d\u7ba1\u7406"}},{"@type":"ListItem","@id":"https:\/\/housingjapan.com\/manage-cn\/#listItem","position":2,"name":"\u7269\u696d\u7ba1\u7406","previousItem":{"@type":"ListItem","@id":"https:\/\/housingjapan.com#listItem","name":"Home"}}]},{"@type":"Organization","@id":"https:\/\/housingjapan.com\/#organization","name":"Housing Japan","url":"https:\/\/housingjapan.com\/","telephone":"+81335888860","foundingDate":"2000-10-05","logo":{"@type":"ImageObject","url":"https:\/\/housingjapan.com\/wp-content\/themes\/hj-wp\/images\/logo.svg","@id":"https:\/\/housingjapan.com\/manage-cn\/#organizationLogo"},"image":{"@id":"https:\/\/housingjapan.com\/manage-cn\/#organizationLogo"},"sameAs":["https:\/\/www.facebook.com\/TokyoHomes","https:\/\/www.instagram.com\/housingjapan\/"]},{"@type":"WebPage","@id":"https:\/\/housingjapan.com\/manage-cn\/#webpage","url":"https:\/\/housingjapan.com\/manage-cn\/","name":"\u7269\u696d\u7ba1\u7406 | Housing Japan","description":"\u63d0\u4f9b\u8f15\u9b06\u7121\u58d3\u529b \u6771\u4eac\u7269\u696d\u7ba1\u7406\u89e3\u6c7a\u65b9\u6848\u3002\u5982\u679c\u7ba1\u7406\u5f97\u5b9c, \u5176\u5be6\u5728\u6771\u4eac\u64c1\u6709\u6295\u8cc7\u7269\u696d\u5f88\u7c21\u55ae\u3002 \u6211\u5011\u63d0\u4f9b\u5168\u65b9\u4f4d\u7684\u7269\u696d\u7ba1\u7406\u670d\u52d9, \u70ba\u9ad8\u7d1a\u8c6a\u5b85\u3001\u6295\u8cc7\u4f4f\u5b85\u8207\u6574\u68df\u7269\u696d\u63d0\u4f9b\u500b\u4eba\u5316\u79df\u8cc3\u670d\u52d9\u3002 \u6211\u5011\u70ba\u60a8\u8655\u7406\u4e00\u5207\u7269\u696d\u7ba1\u7406\u696d\u52d9, \u4e26\u5b9a\u671f\u5411\u60a8\u63d0\u4f9b\u5831\u544a\u3002 \u6211\u5011\u670d\u52d9\u65e5\u672c\u7576\u5730\u5ba2\u6236\u8207\u6d77\u5916\u5ba2\u6236\u3002","inLanguage":"en-US","isPartOf":{"@id":"https:\/\/housingjapan.com\/#website"},"breadcrumb":{"@id":"https:\/\/housingjapan.com\/manage-cn\/#breadcrumblist"},"image":{"@type":"ImageObject","url":"https:\/\/cdn.housingjapan.com\/wp-content\/uploads\/2024\/06\/18115234\/manage__header-scaled.jpg","@id":"https:\/\/housingjapan.com\/manage-cn\/#mainImage","width":2560,"height":1280,"caption":"\u7269\u696d\u7ba1\u7406"},"primaryImageOfPage":{"@id":"https:\/\/housingjapan.com\/manage-cn\/#mainImage"},"datePublished":"2024-06-18T11:53:34+09:00","dateModified":"2024-06-20T14:34:03+09:00"},{"@type":"WebSite","@id":"https:\/\/housingjapan.com\/#website","url":"https:\/\/housingjapan.com\/","name":"Housing Japan","inLanguage":"en-US","publisher":{"@id":"https:\/\/housingjapan.com\/#organization"}}]}
+		</script>
+		<!-- All in One SEO -->
+
+<link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
+<link rel="dns-prefetch" href="//challenges.cloudflare.com">
+<link rel="dns-prefetch" href="//www.google.com">
+<link rel="dns-prefetch" href="//fonts.googleapis.com">
+<link rel="dns-prefetch" href="//www.googletagmanager.com">
+<link rel="alternate" title="oEmbed (JSON)" type="application/json+oembed" href="/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fhousingjapan.com%2Fmanage-cn%2F">
+<link rel="alternate" title="oEmbed (XML)" type="text/xml+oembed" href="/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fhousingjapan.com%2Fmanage-cn%2F&amp;format=xml">
+<style id="wp-img-auto-sizes-contain-inline-css">
+img:is([sizes=auto i],[sizes^="auto," i]){contain-intrinsic-size:3000px 1500px}
+/*# sourceURL=wp-img-auto-sizes-contain-inline-css */
+</style>
+<link rel="stylesheet" id="layerslider-css" href="/wp-content/plugins/LayerSlider/assets/static/layerslider/css/layerslider.css" media="all">
+<link rel="stylesheet" id="swiper-css" href="/ajax/libs/Swiper/4.5.1/css/swiper.min.css" media="all">
+<link rel="stylesheet" id="wp-block-library-css" href="/wp-includes/css/dist/block-library/style.min.css" media="all">
+
+<style id="classic-theme-styles-inline-css">
+/*! This file is auto-generated */
+.wp-block-button__link{color:#fff;background-color:#32373c;border-radius:9999px;box-shadow:none;text-decoration:none;padding:calc(.667em + 2px) calc(1.333em + 2px);font-size:1.125em}.wp-block-file__button{background:#32373c;color:#fff;text-decoration:none}
+/*# sourceURL=/wp-includes/css/classic-themes.min.css */
+</style>
+<style id="global-styles-inline-css">
+:root{--wp--preset--aspect-ratio--square: 1;--wp--preset--aspect-ratio--4-3: 4/3;--wp--preset--aspect-ratio--3-4: 3/4;--wp--preset--aspect-ratio--3-2: 3/2;--wp--preset--aspect-ratio--2-3: 2/3;--wp--preset--aspect-ratio--16-9: 16/9;--wp--preset--aspect-ratio--9-16: 9/16;--wp--preset--color--black: #000000;--wp--preset--color--cyan-bluish-gray: #abb8c3;--wp--preset--color--white: #ffffff;--wp--preset--color--pale-pink: #f78da7;--wp--preset--color--vivid-red: #cf2e2e;--wp--preset--color--luminous-vivid-orange: #ff6900;--wp--preset--color--luminous-vivid-amber: #fcb900;--wp--preset--color--light-green-cyan: #7bdcb5;--wp--preset--color--vivid-green-cyan: #00d084;--wp--preset--color--pale-cyan-blue: #8ed1fc;--wp--preset--color--vivid-cyan-blue: #0693e3;--wp--preset--color--vivid-purple: #9b51e0;--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple: linear-gradient(135deg,rgb(6,147,227) 0%,rgb(155,81,224) 100%);--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan: linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%);--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange: linear-gradient(135deg,rgb(252,185,0) 0%,rgb(255,105,0) 100%);--wp--preset--gradient--luminous-vivid-orange-to-vivid-red: linear-gradient(135deg,rgb(255,105,0) 0%,rgb(207,46,46) 100%);--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray: linear-gradient(135deg,rgb(238,238,238) 0%,rgb(169,184,195) 100%);--wp--preset--gradient--cool-to-warm-spectrum: linear-gradient(135deg,rgb(74,234,220) 0%,rgb(151,120,209) 20%,rgb(207,42,186) 40%,rgb(238,44,130) 60%,rgb(251,105,98) 80%,rgb(254,248,76) 100%);--wp--preset--gradient--blush-light-purple: linear-gradient(135deg,rgb(255,206,236) 0%,rgb(152,150,240) 100%);--wp--preset--gradient--blush-bordeaux: linear-gradient(135deg,rgb(254,205,165) 0%,rgb(254,45,45) 50%,rgb(107,0,62) 100%);--wp--preset--gradient--luminous-dusk: linear-gradient(135deg,rgb(255,203,112) 0%,rgb(199,81,192) 50%,rgb(65,88,208) 100%);--wp--preset--gradient--pale-ocean: linear-gradient(135deg,rgb(255,245,203) 0%,rgb(182,227,212) 50%,rgb(51,167,181) 100%);--wp--preset--gradient--electric-grass: linear-gradient(135deg,rgb(202,248,128) 0%,rgb(113,206,126) 100%);--wp--preset--gradient--midnight: linear-gradient(135deg,rgb(2,3,129) 0%,rgb(40,116,252) 100%);--wp--preset--font-size--small: 13px;--wp--preset--font-size--medium: 20px;--wp--preset--font-size--large: 36px;--wp--preset--font-size--x-large: 42px;--wp--preset--spacing--20: 0.44rem;--wp--preset--spacing--30: 0.67rem;--wp--preset--spacing--40: 1rem;--wp--preset--spacing--50: 1.5rem;--wp--preset--spacing--60: 2.25rem;--wp--preset--spacing--70: 3.38rem;--wp--preset--spacing--80: 5.06rem;--wp--preset--shadow--natural: 6px 6px 9px rgba(0, 0, 0, 0.2);--wp--preset--shadow--deep: 12px 12px 50px rgba(0, 0, 0, 0.4);--wp--preset--shadow--sharp: 6px 6px 0px rgba(0, 0, 0, 0.2);--wp--preset--shadow--outlined: 6px 6px 0px -3px rgb(255, 255, 255), 6px 6px rgb(0, 0, 0);--wp--preset--shadow--crisp: 6px 6px 0px rgb(0, 0, 0);}:where(.is-layout-flex){gap: 0.5em;}:where(.is-layout-grid){gap: 0.5em;}body .is-layout-flex{display: flex;}.is-layout-flex{flex-wrap: wrap;align-items: center;}.is-layout-flex > :is(*, div){margin: 0;}body .is-layout-grid{display: grid;}.is-layout-grid > :is(*, div){margin: 0;}:where(.wp-block-columns.is-layout-flex){gap: 2em;}:where(.wp-block-columns.is-layout-grid){gap: 2em;}:where(.wp-block-post-template.is-layout-flex){gap: 1.25em;}:where(.wp-block-post-template.is-layout-grid){gap: 1.25em;}.has-black-color{color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-color{color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-color{color: var(--wp--preset--color--white) !important;}.has-pale-pink-color{color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-color{color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-color{color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-color{color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-color{color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-color{color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-color{color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-color{color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-color{color: var(--wp--preset--color--vivid-purple) !important;}.has-black-background-color{background-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-background-color{background-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-background-color{background-color: var(--wp--preset--color--white) !important;}.has-pale-pink-background-color{background-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-background-color{background-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-background-color{background-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-background-color{background-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-background-color{background-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-background-color{background-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-background-color{background-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-background-color{background-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-background-color{background-color: var(--wp--preset--color--vivid-purple) !important;}.has-black-border-color{border-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-border-color{border-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-border-color{border-color: var(--wp--preset--color--white) !important;}.has-pale-pink-border-color{border-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-border-color{border-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-border-color{border-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-border-color{border-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-border-color{border-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-border-color{border-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-border-color{border-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-border-color{border-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-border-color{border-color: var(--wp--preset--color--vivid-purple) !important;}.has-vivid-cyan-blue-to-vivid-purple-gradient-background{background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple) !important;}.has-light-green-cyan-to-vivid-green-cyan-gradient-background{background: var(--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan) !important;}.has-luminous-vivid-amber-to-luminous-vivid-orange-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange) !important;}.has-luminous-vivid-orange-to-vivid-red-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-orange-to-vivid-red) !important;}.has-very-light-gray-to-cyan-bluish-gray-gradient-background{background: var(--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray) !important;}.has-cool-to-warm-spectrum-gradient-background{background: var(--wp--preset--gradient--cool-to-warm-spectrum) !important;}.has-blush-light-purple-gradient-background{background: var(--wp--preset--gradient--blush-light-purple) !important;}.has-blush-bordeaux-gradient-background{background: var(--wp--preset--gradient--blush-bordeaux) !important;}.has-luminous-dusk-gradient-background{background: var(--wp--preset--gradient--luminous-dusk) !important;}.has-pale-ocean-gradient-background{background: var(--wp--preset--gradient--pale-ocean) !important;}.has-electric-grass-gradient-background{background: var(--wp--preset--gradient--electric-grass) !important;}.has-midnight-gradient-background{background: var(--wp--preset--gradient--midnight) !important;}.has-small-font-size{font-size: var(--wp--preset--font-size--small) !important;}.has-medium-font-size{font-size: var(--wp--preset--font-size--medium) !important;}.has-large-font-size{font-size: var(--wp--preset--font-size--large) !important;}.has-x-large-font-size{font-size: var(--wp--preset--font-size--x-large) !important;}
+/*# sourceURL=global-styles-inline-css */
+</style>
+
+<link rel="stylesheet" id="contact-form-7-css" href="/wp-content/plugins/contact-form-7/includes/css/styles.css" media="all">
+<link rel="stylesheet" id="font-awesome-css" href="/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" media="all">
+<link rel="stylesheet" id="hj-mobiscroll-css" href="/wp-content/themes/hj-wp/vendor/mobiscroll/mobiscroll.jquery-4.5.3.min.css" media="all">
+<link rel="stylesheet" id="nprogress-css" href="/ajax/libs/nprogress/0.2.0/nprogress.min.css" media="all">
+<link rel="stylesheet" id="fonts-css" href="https://fonts.googleapis.com/css2?family=Raleway:wght@100;200;300;400;500;600&amp;family=Noto+Sans+JP:wght@300;400;500&amp;family=Roboto:wght@300;400;500;700&amp;display=swap" media="all">
+<link rel="stylesheet" id="hj-style-css" href="/wp-content/themes/hj-wp/css/theme.css" media="all">
+<link rel="stylesheet" id="font-noto-sans-sc-css" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@100..900&amp;display=swap" media="all">
+<script src="/ajax/libs/Swiper/4.5.1/js/swiper.min.js" id="swiper-js"></script>
+<script src="/ajax/libs/underscore.js/1.11.0/underscore-min.js" id="underscore-js"></script>
+<script src="/ajax/libs/jquery/3.5.1/jquery.min.js" id="jquery-js"></script>
+<script src="/ajax/libs/backbone.js/1.4.0/backbone-min.js" id="backbone-js"></script>
+<script src="/ajax/libs/twitter-bootstrap/4.6.1/js/bootstrap.bundle.min.js" id="bootstrap-js"></script>
+<script src="/ajax/libs/lazysizes/5.2.2/lazysizes.min.js" id="lazysizes-js"></script>
+<script src="/ajax/libs/corejs-typeahead/1.3.1/typeahead.bundle.min.js" id="typeahead-js"></script>
+<script src="/wp-includes/js/dist/vendor/moment.min.js" id="moment-js"></script>
+<script id="moment-js-after">
+moment.updateLocale( 'en_US', {"months":["January","February","March","April","May","June","July","August","September","October","November","December"],"monthsShort":["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],"weekdays":["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],"weekdaysShort":["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],"week":{"dow":1},"longDateFormat":{"LT":"g:i a","LTS":null,"L":null,"LL":"F j, Y","LLL":"F j, Y g:i a","LLLL":null}} );
+//# sourceURL=moment-js-after
+</script>
+<script src="/wp-content/themes/hj-wp/vendor/mobiscroll/mobiscroll.jquery-4.5.3.min.js" id="hj-mobiscroll-js"></script>
+<script src="/ajax/libs/nprogress/0.2.0/nprogress.min.js" id="nprogress-js"></script>
+<script src="https://www.google.com/recaptcha/api.js?render=6Le_6fsrAAAAAA1CIbs3Nfv_k4ugcUcCDO6aj7pH" id="google-recaptcha-js"></script>
+<script id="hj-script-js-before">
+HJ.Config.gmaps_api_key = 'AIzaSyB0iKVcvMkcgGXUh_ld2j5SymSV6mMKGkA';
+//# sourceURL=hj-script-js-before
+</script>
+<script src="/wp-content/themes/hj-wp/js/hj.js" id="hj-script-js"></script>
+<script src="/wp-content/themes/hj-wp/js/languages/en.js" id="hj-translations-js"></script>
+<script src="/ajax/libs/gsap/3.11.3/gsap.min.js" id="gsap-js"></script>
+<script src="/ajax/libs/gsap/3.11.3/ScrollTrigger.min.js" id="scroll_trigger-js"></script>
+<meta name="generator" content="Powered by LayerSlider 8.1.2 - Build Heros, Sliders, and Popups. Create Animations and Beautiful, Rich Web Content as Easy as Never Before on WordPress.">
+<!-- LayerSlider updates and docs at: https://layerslider.com -->
+<link rel="https://api.w.org/" href="/wp-json/"><link rel="alternate" title="JSON" type="application/json" href="/wp-json/wp/v2/pages/54785"><link rel="EditURI" type="application/rsd+xml" title="RSD" href="/xmlrpc.php?rsd">
+
+<link rel="shortlink" href="/?p=54785">
+<meta name="generator" content="Site Kit by Google 1.172.0">            <script type="text/javascript"><!--
+                                function powerpress_pinw(pinw_url){window.open(pinw_url, 'PowerPressPlayer','toolbar=0,status=0,resizable=1,width=460,height=320');	return false;}
+                //-->
+
+                // tabnab protection
+                window.addEventListener('load', function () {
+                    // make all links have rel="noopener noreferrer"
+                    document.querySelectorAll('a[target="_blank"]').forEach(link => {
+                        link.setAttribute('rel', 'noopener noreferrer');
+                    });
+                });
+            </script>
+            
+<!-- Google AdSense meta tags added by Site Kit -->
+<meta name="google-adsense-platform-account" content="ca-host-pub-2644536267352236">
+<meta name="google-adsense-platform-domain" content="sitekit.withgoogle.com">
+<!-- End Google AdSense meta tags added by Site Kit -->
+
+<!-- Google Tag Manager snippet added by Site Kit -->
+<script>
+			( function( w, d, s, l, i ) {
+				w[l] = w[l] || [];
+				w[l].push( {'gtm.start': new Date().getTime(), event: 'gtm.js'} );
+				var f = d.getElementsByTagName( s )[0],
+					j = d.createElement( s ), dl = l != 'dataLayer' ? '&l=' + l : '';
+				j.async = true;
+				j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+				f.parentNode.insertBefore( j, f );
+			} )( window, document, 'script', 'dataLayer', 'GTM-PM3NCG2' );
+			
+</script>
+
+<!-- End Google Tag Manager snippet added by Site Kit -->
+<link rel="icon" href="https://cdn.housingjapan.com/wp-content/uploads/2023/01/31115844/cropped-hj-logo-2023-512x512-1-32x32.png" sizes="32x32">
+<link rel="icon" href="https://cdn.housingjapan.com/wp-content/uploads/2023/01/31115844/cropped-hj-logo-2023-512x512-1-192x192.png" sizes="192x192">
+<link rel="apple-touch-icon" href="https://cdn.housingjapan.com/wp-content/uploads/2023/01/31115844/cropped-hj-logo-2023-512x512-1-180x180.png">
+<meta name="msapplication-TileImage" content="https://cdn.housingjapan.com/wp-content/uploads/2023/01/31115844/cropped-hj-logo-2023-512x512-1-270x270.png">
+
+    
+</head><body class="wp-singular page-template page-template-property-management-cn page-template-property-management-cn-php page page-id-54785 wp-theme-hj-wp modal-open" style=""><div class="modal fade" id="newsletterModal" tabindex="-1" aria-labelledby="newsletterModalLabel" aria-hidden="true">
+    <div class="newsletter-modal__dialog modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body p-0">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                <div class="newsletter-modal__header w-100 position-relative">
+                    <img src="/wp-content/themes/hj-wp/images/newsletter__signup-popup.jpg" title="Luxury dining room interior, Tokyo real estate" alt="luxury dining room interior" class="newsletter-modal__header--image">
+                    <div class="newsletter-modal__header--text text-white">
+                        <p class="h2 m-0">
+                            <span class="text-primary">Weekly Property Listings</span> In Your Inbox                        </p>
+                        <p class="mt-4 mb-0 w-sm-80 mx-auto">Sign up now to get access to the most luxurious freehold properties on the market. You can unsubscribe anytime.</p>
+                    </div>
+                    <div class="newsletter-modal__overlay"></div>
+                </div>
+                <div class="w-80 mx-auto" id="newsletter-form-modal">
+                    <form role="form" class="my-3 my-lg-5">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="newsletter-modal__input--text form-group mb-0">
+                                    <label class="newsletter-modal__input--text-label" for="field-name">Name</label>
+                                    <input id="field-name" type="text" class="form-control form-control text-muted h-100 w-100" name="name" maxlength="255" autocomplete="name" required="">
+                                </div>
+
+                                <div class="newsletter-modal__input--text form-group my-2 mt-lg-4 mb-lg-3">
+                                    <label class="newsletter-modal__input--text-label" for="field-email">Email</label>
+                                    <input id="field-email" type="email" class="form-control form-control text-muted h-100 w-100" name="email" maxlength="255" autocomplete="email" required="">
+                                </div>
+                            </div>
+
+                            <div class="col-lg-5">
+                                <div class="newsletter-modal__input--checkboxes form-group mt-lg-4">
+                                    <label class="col-form-label">Please send me information on:</label>
+                                    <p id="interestError" class="d-none text-danger" style="font-size: 12px;">Please select at least one option.</p>
+                                    <div class="form-group">
+                                        <div class="form-check">
+                                            <input id="field-luxury" class="form-check-input" name="newsletter-interest" type="checkbox" value="Luxury Tokyo Real Estate">
+                                            <label class="form-check-label" for="field-luxury">Luxury Tokyo Real Estate</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input id="field-resort" class="form-check-input" name="newsletter-interest" type="checkbox" value="Resort Properties">
+                                            <label class="form-check-label" for="field-resort">Resort Properties</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input id="field-investment" class="form-check-input" name="newsletter-interest" type="checkbox" value="Investment Real Estate">
+                                            <label class="form-check-label" for="field-investment">Investment Real Estate</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input id="field-rental" class="form-check-input" name="newsletter-interest" type="checkbox" value="Properties for Rent">
+                                            <label class="form-check-label" for="field-rental">Properties for Rent</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <small>
+                            By signing up, you agree to our <a href="/inquiry-terms-conditions/" target="_blank" rel="noopener noreferrer">Terms of Use</a>.                        </small>
+
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-outline-primary w-50 newsletterSubmit">Sign Up</button>
+                        </div>
+                    </form>
+                    <div data-part="msg"></div>
+                    <script type="text/template" id="tmpl-msg-error-send">
+                        <div class="alert alert-danger text-center">
+                            There was an error subscribing to the newsletter. Please try again.                        </div>
+                    </script>
+                    <script type="text/template" id="tmpl-msg-success-send">
+                        <div class="alert alert-success text-center">Thank you</div>
+                    </script>
+                    <script>
+                        jQuery(function() {
+                            // Create BB newsletter view and attach to #newsletter-form-modal
+                            const newsletterForm = new HJ.Views.NewsletterForm({
+                                el: document.getElementById('newsletter-form-modal'),
+                                list: 'sales',
+                                platform: 'pu', // Popup
+                                google_site_key: '6Le_6fsrAAAAAA1CIbs3Nfv_k4ugcUcCDO6aj7pH'
+                            });
+                        });
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    jQuery(document).ready(function() {
+        const setPopupTimeout = () => {
+            window.addEventListener('load', (e) => {
+                setTimeout(() => {
+                    $('#newsletterModal').modal('show')
+
+                    const dataToSave = JSON.stringify({
+                        visited: true,
+                        expires: moment().add(30, 'days')
+                    })
+
+                    localStorage.setItem('hj_popup_data', dataToSave)
+                }, 5000)
+            })
+        }
+
+        const popupData = localStorage.getItem('hj_popup_data');
+
+        if (popupData) {
+            const currentUrl = document.location.pathname;
+            const parsedPopupData = JSON.parse(popupData)
+
+            const {
+                visited,
+                expires
+            } = parsedPopupData;
+
+            const currentTime = moment()
+            const hasExpired = moment(expires).isSameOrBefore(currentTime)
+            const isNewsletterPage = currentUrl === '/newsletter-signup/'
+
+
+            if ((visited && hasExpired) && !isNewsletterPage) {
+                setPopupTimeout()
+            }
+        } else {
+            setPopupTimeout()
+        }
+    });
+</script>
+
+
+    <a href="#content" class="skip-to-main-content-link">Skip to main content</a>
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-light navbar-expand-lg fixed-top border-bottom p-lg-0" role="navigation">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <img src="/wp-content/themes/hj-wp/images/logo.svg" title="Housing Japan" alt="Housing Japan">
+            </a>
+
+            <div class="d-flex align-items-center">
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-switch="false" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+
+
+            <div class="collapse navbar-collapse justify-content-end ml-md-3 mt-3 mt-lg-0" id="navbarSupportedContent">
+                <ul id="menu-top-menu" class="nav navbar-nav"><li itemscope="itemscope" itemtype="https://www.schema.org/SiteNavigationElement" id="menu-item-29905" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children dropdown menu-item-29905 nav-item"><a title="Buy" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="dropdown-toggle nav-link" id="menu-item-dropdown-29905">Buy</a>
+<ul class="dropdown-menu dropdown-menu-right" aria-labelledby="menu-item-dropdown-29905" role="menu">
+	<li itemscope="itemscope" itemtype="https://www.schema.org/SiteNavigationElement" id="menu-item-51629" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-51629 nav-item"><a title="Search" href="/buy/search/" class="dropdown-item">Search</a></li>
+	<li itemscope="itemscope" itemtype="https://www.schema.org/SiteNavigationElement" id="menu-item-51604" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-51604 nav-item"><a title="Luxury Properties in Tokyo" href="/buy/" class="dropdown-item">Luxury Properties in Tokyo</a></li>
+	<li itemscope="itemscope" itemtype="https://www.schema.org/SiteNavigationElement" id="menu-item-51606" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-51606 nav-item"><a title="Resort Properties" href="/resorts/" class="dropdown-item">Resort Properties</a></li>
+	<li itemscope="itemscope" itemtype="https://www.schema.org/SiteNavigationElement" id="menu-item-51605" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-51605 nav-item"><a title="Investment Real Estate" href="/investment-properties/" class="dropdown-item">Investment Real Estate</a></li>
+</ul>
+</li>
+<li itemscope="itemscope" itemtype="https://www.schema.org/SiteNavigationElement" id="menu-item-51674" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children dropdown menu-item-51674 nav-item"><a title="Sell" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="dropdown-toggle nav-link" id="menu-item-dropdown-51674">Sell</a>
+<ul class="dropdown-menu dropdown-menu-right" aria-labelledby="menu-item-dropdown-51674" role="menu">
+	<li itemscope="itemscope" itemtype="https://www.schema.org/SiteNavigationElement" id="menu-item-51611" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-51611 nav-item"><a title="Sell With HJ" href="/sell/" class="dropdown-item">Sell With HJ</a></li>
+	<li itemscope="itemscope" itemtype="https://www.schema.org/SiteNavigationElement" id="menu-item-51676" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-51676 nav-item"><a title="Free Appraisal" href="/resources/free-valuation/" class="dropdown-item">Free Appraisal</a></li>
+	<li itemscope="itemscope" itemtype="https://www.schema.org/SiteNavigationElement" id="menu-item-51675" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-51675 nav-item"><a title="Recent Sales" href="/sell/sold/" class="dropdown-item">Recent Sales</a></li>
+</ul>
+</li>
+<li itemscope="itemscope" itemtype="https://www.schema.org/SiteNavigationElement" id="menu-item-29906" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children dropdown menu-item-29906 nav-item"><a title="Rent" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="dropdown-toggle nav-link" id="menu-item-dropdown-29906">Rent</a>
+<ul class="dropdown-menu dropdown-menu-right" aria-labelledby="menu-item-dropdown-29906" role="menu">
+	<li itemscope="itemscope" itemtype="https://www.schema.org/SiteNavigationElement" id="menu-item-33025" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-33025 nav-item"><a title="Short-Term Furnished Apartments" href="/short-term/" class="dropdown-item">Short-Term Furnished Apartments</a></li>
+	<li itemscope="itemscope" itemtype="https://www.schema.org/SiteNavigationElement" id="menu-item-51616" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-51616 nav-item"><a title="Long-Term Rentals" href="/rent/" class="dropdown-item">Long-Term Rentals</a></li>
+	<li itemscope="itemscope" itemtype="https://www.schema.org/SiteNavigationElement" id="menu-item-51630" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-51630 nav-item"><a title="Search Rentals" href="/rent/search/" class="dropdown-item">Search Rentals</a></li>
+</ul>
+</li>
+<li itemscope="itemscope" itemtype="https://www.schema.org/SiteNavigationElement" id="menu-item-52033" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children dropdown menu-item-52033 nav-item"><a title="Manage" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="dropdown-toggle nav-link" id="menu-item-dropdown-52033">Manage</a>
+<ul class="dropdown-menu dropdown-menu-right" aria-labelledby="menu-item-dropdown-52033" role="menu">
+	<li itemscope="itemscope" itemtype="https://www.schema.org/SiteNavigationElement" id="menu-item-32823" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-32823 nav-item"><a title="Property Management Service" href="/property-management/" class="dropdown-item">Property Management Service</a></li>
+	<li itemscope="itemscope" itemtype="https://www.schema.org/SiteNavigationElement" id="menu-item-54802" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-54802 nav-item"><a title="Managed Short-Term Properties" href="/managed-short-term-properties/" class="dropdown-item">Managed Short-Term Properties</a></li>
+	<li itemscope="itemscope" itemtype="https://www.schema.org/SiteNavigationElement" id="menu-item-52034" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-52034 nav-item"><a title="Owner's Portal" target="_blank" href="https://owners.housingjapan.com/" class="dropdown-item" rel="noopener noreferrer">Owner’s Portal</a></li>
+</ul>
+</li>
+<li itemscope="itemscope" itemtype="https://www.schema.org/SiteNavigationElement" id="menu-item-51617" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children dropdown menu-item-51617 nav-item"><a title="Learn" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="dropdown-toggle nav-link" id="menu-item-dropdown-51617">Learn</a>
+<ul class="dropdown-menu dropdown-menu-right" aria-labelledby="menu-item-dropdown-51617" role="menu">
+	<li itemscope="itemscope" itemtype="https://www.schema.org/SiteNavigationElement" id="menu-item-51619" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-51619 nav-item"><a title="Area Guides" href="/area-guides/" class="dropdown-item">Area Guides</a></li>
+	<li itemscope="itemscope" itemtype="https://www.schema.org/SiteNavigationElement" id="menu-item-51620" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-51620 nav-item"><a title="Resources" href="/resources/" class="dropdown-item">Resources</a></li>
+	<li itemscope="itemscope" itemtype="https://www.schema.org/SiteNavigationElement" id="menu-item-41632" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-41632 nav-item"><a title="Newsroom" href="/blog/" class="dropdown-item">Newsroom</a></li>
+</ul>
+</li>
+<li itemscope="itemscope" itemtype="https://www.schema.org/SiteNavigationElement" id="menu-item-29826" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children dropdown menu-item-29826 nav-item"><a title="About" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="dropdown-toggle nav-link" id="menu-item-dropdown-29826">About</a>
+<ul class="dropdown-menu dropdown-menu-right" aria-labelledby="menu-item-dropdown-29826" role="menu">
+	<li itemscope="itemscope" itemtype="https://www.schema.org/SiteNavigationElement" id="menu-item-31924" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-31924 nav-item"><a title="Company" href="/about/" class="dropdown-item">Company</a></li>
+	<li itemscope="itemscope" itemtype="https://www.schema.org/SiteNavigationElement" id="menu-item-54731" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-54731 nav-item"><a title="Access" href="/about/access/" class="dropdown-item">Access</a></li>
+	<li itemscope="itemscope" itemtype="https://www.schema.org/SiteNavigationElement" id="menu-item-53999" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-53999 nav-item"><a title="Housing Japan Group" href="/about/hj-group/" class="dropdown-item">Housing Japan Group</a></li>
+	<li itemscope="itemscope" itemtype="https://www.schema.org/SiteNavigationElement" id="menu-item-54915" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-54915 nav-item"><a title="Career Opportunities" href="/about/career-opportunities/" class="dropdown-item">Career Opportunities</a></li>
+	<li itemscope="itemscope" itemtype="https://www.schema.org/SiteNavigationElement" id="menu-item-54601" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-54601 nav-item"><a title="Project Marketing" href="/project-marketing/" class="dropdown-item">Project Marketing</a></li>
+	<li itemscope="itemscope" itemtype="https://www.schema.org/SiteNavigationElement" id="menu-item-54715" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-54715 nav-item"><a title="Luxury Developments" href="/luxury-developments/" class="dropdown-item">Luxury Developments</a></li>
+</ul>
+</li>
+<li itemscope="itemscope" itemtype="https://www.schema.org/SiteNavigationElement" id="menu-item-54795" class="globe menu-item menu-item-type-custom menu-item-object-custom current-menu-ancestor current-menu-parent menu-item-has-children dropdown active menu-item-54795 nav-item"><a title="日本 / 中国" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="dropdown-toggle nav-link" id="menu-item-dropdown-54795"></a>
+<ul class="dropdown-menu dropdown-menu-right" aria-labelledby="menu-item-dropdown-54795" role="menu">
+	<li itemscope="itemscope" itemtype="https://www.schema.org/SiteNavigationElement" id="menu-item-54796" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-54796 nav-item"><a title="ハウジング・ジャパン" target="_blank" href="https://housingjapan.co.jp/" class="dropdown-item" rel="noopener noreferrer">ハウジング・ジャパン</a></li>
+	<li itemscope="itemscope" itemtype="https://www.schema.org/SiteNavigationElement" id="menu-item-54797" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-54797 nav-item"><a title="东京投资房地产" href="/investment-properties-cn/" class="dropdown-item">东京投资房地产</a></li>
+	<li itemscope="itemscope" itemtype="https://www.schema.org/SiteNavigationElement" id="menu-item-54798" class="menu-item menu-item-type-post_type menu-item-object-page current-menu-item page_item page-item-54785 current_page_item active-child menu-item-54798 nav-item"><a title="物業管理" href="/manage-cn/" class="dropdown-item">物業管理</a></li>
+</ul>
+</li>
+</ul>
+                <button type="button" class="btn btn-outline-primary mt-3 mt-lg-0 ml-3 px-4" data-toggle="modal" data-switch="true" data-target="#secondaryModal">Contact</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Navbar Hover -->
+        <script src="/wp-content/themes/hj-wp/src/js/nav-hover.js"></script>
+
+    <!-- Modal -->
+    <div class="modal fade" id="contactModal" tabindex="-1" aria-labelledby="contactModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body">
+        <div class="w-sm-85 mx-auto" id="hj-inquiry-form-modal">
+          <div class="d-flex justify-content-between align-items-center">
+            <p class="h2 text-center">Contact Us</p>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+          </div>
+
+          <p>Please fill out the form below and our agent will be in contact.</p>
+
+          <form role="form">
+            <div class="row">
+              <div class="col-12">
+                <div class="row">
+                  <div class="form-group input-group d-flex flex-column col-md-6 pr-md-1">
+                    <label for="field-first_name">First Name</label>
+                    <input type="text" class="form-control rounded-0 text-muted w-100" id="field-first_name" name="first_name" maxlength="64" autocomplete="given-name" required="">
+                  </div>
+                  <div class="form-group input-group d-flex flex-column col-md-6 pl-md-1">
+                    <label for="field-last_name">Last Name</label>
+                    <input type="text" class="form-control rounded-0 text-muted w-100" id="field-last_name" name="last_name" maxlength="64" autocomplete="family-name" required="">
+                  </div>
+                </div>
+                <div class="form-group input-group d-flex flex-column">
+                  <label for="field-email">Email</label>
+                  <input type="email" class="form-control rounded-0 text-muted w-100" id="field-email" name="email" maxlength="255" autocomplete="email" required="">
+                </div>
+                <div class="form-group input-group d-flex flex-column">
+                  <label for="field-telephone">Phone</label>
+                  <input type="tel" class="form-control rounded-0 text-muted w-100" id="field-telephone" name="telephone" maxlength="20" autocomplete="tel" pattern="[\d+\(\)\-. ]+">
+                </div>
+                                  <div class="form-group input-group-sm">
+                    <label for="field-source">How did you hear about us?</label>
+                    <select id="source-select" class="form-control form-control" name="source">
+                      <option value=""></option>
+                      <option value="search_engine">Search Engine (Google, Yahoo, etc.)</option>
+                      <option value="sns">Social Media</option>
+                      <option value="word_of_mouth">Word of Mouth</option>
+                      <option value="referral">Referral</option>
+                      <option value="blog_or_publication">Blog or Publication</option>
+                      <option value="other">Other</option>
+                    </select>
+                    <div id="other-source" class="form-group input-group-sm mt-3 d-none">
+                      <label for="other-source">Please tell us where:</label>
+                      <input type="text" class="form-control form-control text-muted" id="field-other_source" name="other_source" placeholder="" maxlength="64">
+                    </div>
+                  </div>
+                              </div>
+              <div class="col-12">
+                                  <div class="form-group input-group-sm">
+                    <label for="field-inquiry-type">Inquiry Type *</label>
+                    <select id="inquiry-type-select" class="form-control form-control" name="inquiry-type" required="">
+                      <option value="">Please Select</option>
+                      <option value="general">General</option>
+                      <option value="sales">Sales</option>
+                      <option value="investment">Investment Sales</option>
+                      <option value="property-management">Property Management</option>
+                      <option value="short-term">Short-Term Rental</option>
+                      <option value="rent">Long-Term Rental</option>
+                    </select>
+                  </div>
+                                <div id="investment-property-type" class="form-group input-group-sm mt-3 d-none">
+                  <p class="mb-1">I'm interested in learning more about: (Please select one)</p>
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="investment_property_type" value="investment-small" id="investment-small">
+                    <label class="form-check-label font-weight-normal" for="investment-small">
+                      Investment Property (Unit or House)                    </label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="investment_property_type" value="investment-building" id="investment-building">
+                    <label class="form-check-label font-weight-normal" for="investment-building">
+                      Investment Building                    </label>
+                  </div>
+                </div>
+                <p id="investment-property-type__error" class="text-danger d-none">Please select an investment type.</p>
+                <div class="form-group input-group-sm">
+                  <label for="field-message">Your Inquiry</label>
+                  <textarea id="field-message" class="form-control rounded-0" name="message"></textarea>
+                </div>
+                <p class="small text-right">* All fields are required</p>
+              </div>
+            </div>
+
+            <div class="submit">
+              <div class="form-group checkbox text-center">
+                <label class="control-label">
+                  <input type="checkbox" name="terms" value="1" required="">
+                  I agree to the <a href="/inquiry-terms-conditions/" target="_blank" rel="noopener noreferrer">terms &amp; conditions</a>                </label>
+              </div>
+
+              <div class="form-group text-center">
+                <button type="submit" class="btn btn-lg btn-primary" id="submit">Inquire</button>
+              </div>
+            </div>
+          </form>
+
+          <div data-part="msg" class="cntr-msg"></div>
+
+          <script type="text/template" id="tmpl-msg-error-send">
+            <div class="alert alert-danger text-center">
+                There was an error sending your inquiry. Please try again.            </div>
+          </script>
+          <script type="text/template" id="tmpl-msg-error-field">
+            <div class="alert alert-danger text-center">
+                Please fill out all fields correctly.            </div>
+          </script>
+          <script type="text/template" id="tmpl-msg-info-already-received">
+            <div class="alert alert-info text-center">
+              <p>Thanks again! We've already received your inquiry!</p>
+            </div>
+           </script>
+          <script type="text/template" id="tmpl-msg-success-send">
+            <div class="alert alert-success text-center">
+              <p>Your inquiry has been sent successfully. We'll get back to you as soon as possible!</p>
+            </div>
+          </script>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  jQuery(document).ready(function() {
+    // Create inquiry form config
+    const inquiryFormConfig = {
+      el: document.getElementById('hj-inquiry-form-modal'),
+      api_client_id: 'HJ_EN',
+      inquiry_type: 'general',
+      page_url: window.location.href,
+      page_title: document.title,
+      is_contact: true,
+      google_site_key: '6Le_6fsrAAAAAA1CIbs3Nfv_k4ugcUcCDO6aj7pH'
+    };
+
+    // Use select option value as inquiry type if header contact modal
+          inquiryFormConfig.inquiry_type = document.getElementById('inquiry-type-select').value;
+    
+            
+    // Create inquiry form view and attach to the options form element
+    const inquiryForm = new HJ.Views.InquiryForm(inquiryFormConfig);
+  });
+</script>
+    <!-- Begin page content -->
+    <iframe height="0" width="0" style="display: none; visibility: hidden;"></iframe><div id="content">
+<!-- HERO -->
+<div class="hero__section position-relative">
+  <img src="/wp-content/themes/hj-wp/images/manage__header.jpg" alt="Luxury dining room" class="object-top hero__image">
+  <div class="hero__container font-cn">
+    <div class="container">
+      <div class="hero__container-content" style="opacity: 1; visibility: inherit;">
+        <div class="hero__heading w-auto">
+          <h1 id="hero__heading-content" class="hero__heading-content" style="translate: none; rotate: none; scale: none; transform: translate(0px, 0px); opacity: 1;">物业管理</h1>
+        </div>
+        <div class="hero__buttons">
+          <div class="hero__buttons-row">
+            <a class="hero_button" data-toggle="modal" data-switch="true" data-target="#secondaryModal" style="translate: none; rotate: none; scale: none; transform: translate(0px, 0px); opacity: 1;">联系我们</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container font-cn">
+  <!-- ABOUT -->
+  <div class="section-body__cn mb-5">
+    <h2 class="mb-4">
+      <span class="about__heading" style="translate: none; rotate: none; scale: none; opacity: 0; transform: translate(-100px, 0px);">提供轻松无压力</span> <br class="d-lg-none">
+      <span class="about__content" style="translate: none; rotate: none; scale: none; opacity: 0; transform: translate(100px, 0px);">东京物业管理解决方案。</span>
+    </h2>
+
+    <p style="line-height: 3rem; font-weight: light; font-size: 24px;">
+      如果管理得宜，其实在东京拥有投资物业很简单。 我们提供全方位的物业管理服务，为高级豪宅、投资住宅与整栋物业提供个性化租赁服务。 我们为您处理一切物业管理业务，并定期向您提供报告。
+      我们服务日本当地客户与海外客户。 为您的资产增加价值是我们的主要关注点，我们努力提供稳定的租户和长期租约，为您赢得更多利益。
+    </p>
+  </div>
+
+  <div class="section-body__cn mt-5">
+    <!-- BANNER 1 -->
+    <div class="banner__full-width position-relative d-flex flex-column flex-lg-row mx-auto my-5">
+      <img src="/wp-content/themes/hj-wp/images/pm-chinese/banner_1.jpg" alt="海外客户支持" class="banner__full-width-image w-lg-50 pr-lg-3" style="translate: none; rotate: none; scale: none; transform: translate(-100px, 0px); opacity: 0;">
+      <div class="banner__full-width-content w-lg-50 d-flex align-items-center py-5 py-lg-0" style="translate: none; rotate: none; scale: none; transform: translate(100px, 0px); opacity: 0;">
+        <div class="ml-lg-auto my-auto w-lg-90 pt-5">
+          <h2 class="banner__full-width-content--title mt-0">
+            <span class="text-primary">海外</span>客户支持
+          </h2>
+          <p class="banner__full-width-content--text banner" style="line-height: 2.5rem; font-size: 18px;">
+            我们为海外投资者提供虚拟银行账户和线上业主收支报表。
+            虚拟银行账户使投资者能够轻松地从国外投资日本房产。
+            线上业主收支报表是一个网站，允许投资者轻松管理和确认物业的收支信息。
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- BANNER 2 -->
+    <div class="banner__full-width position-relative d-flex flex-column flex-lg-row mx-auto my-5">
+      <img src="/wp-content/themes/hj-wp/images/pm-chinese/banner_2.jpg" alt="多国语言服务" class="banner__full-width-image w-lg-50 pl-lg-3 order-lg-2" style="translate: none; rotate: none; scale: none; transform: translate(100px, 0px); opacity: 0;">
+      <div class="banner__full-width-content w-lg-50 d-flex align-items-center py-5 py-lg-0 order-lg-1" style="translate: none; rotate: none; scale: none; transform: translate(-100px, 0px); opacity: 0;">
+        <div class="my-auto w-lg-90 py-5">
+          <h2 class="banner__full-width-content--title mt-0">
+            <span class="text-primary">多国语言</span>服务
+          </h2>
+          <p class="banner__full-width-content--text" style="line-height: 2.5rem; font-size: 18px;">
+            我们提供多语言服务，以英语，中文和日语提供您在日本进行房地产投资的必要信息和手续。
+            我们也为税务、保险和厂商管理提供多语言服务。
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- BANNER 3 -->
+    <div class="banner__full-width position-relative d-flex flex-column flex-lg-row mx-auto my-5">
+      <img src="/wp-content/themes/hj-wp/images/pm-chinese/banner_3.jpg" alt="安心服务" class="banner__full-width-image w-lg-50 pr-lg-3" style="translate: none; rotate: none; scale: none; transform: translate(-100px, 0px); opacity: 0;">
+      <div class="banner__full-width-content w-lg-50 d-flex align-items-center py-5 py-lg-0" style="translate: none; rotate: none; scale: none; transform: translate(100px, 0px); opacity: 0;">
+        <div class="ml-lg-auto my-auto w-lg-90 pt-5">
+          <h2 class="banner__full-width-content--title mt-0">
+            <span class="text-primary">安心服务</span>
+          </h2>
+          <p class="banner__full-width-content--text" style="line-height: 2.5rem; font-size: 18px;">
+            我们提供物业设备故障报告、维修系统和24小时租客服务中心、使海外投资者可以安心地从事日本房地产投资。
+            我们为您处理任何可能出现的问题或事件，并尽最大努力减轻投资者的担忧。
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-body__cn">
+    <h2 class="about__heading heading__highlight text-center">定期租赁管理</h2>
+    <h2 class="about__content heading__light mb-5">
+      我们提供个性化的物业管理解决方案，以满足您的需求。
+      我们的物业管理团队提供专业的投资组合管理服务，确保您的物业以最高标准进行管理。
+    </h2>
+
+
+    <img src="/wp-content/themes/hj-wp/images/pm-chinese/leasing-management.jpg" alt="定期租賃管理" class="my-4">
+
+    <h2 class="mb-5 text-center">
+      <span class="about__heading">服务 + 收费</span> <br>
+      <span class="about__content">定期租赁管理</span>
+    </h2>
+
+    <div class="row">
+      <div class="col-md-4 mb-4 mb-md-0">
+        <div class="text-center py-5 mb-5 bg-blue-grey">
+          <p class="mb-0 h4">招募租客</p>
+        </div>
+
+        <div class="px-3">
+          <p class="h4 mt-3">
+            一个月租金+消费税<br>
+            (一次性费用)
+          </p>
+
+          <ul class="pl-3 mt-4" style="line-height: 1.7rem;">
+            <li>物业租金评估</li>
+            <li>出租广告服务</li>
+            <li>对入住者进行背景调查</li>
+            <li>房屋租赁契约制作与所有手续</li>
+            <li>担任业主和租客的联络桥梁</li>
+            <li>物业维修</li>
+            <li>入住时屋况检查</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="col-md-4 mb-4 mb-md-0">
+        <div class="text-center py-5 mb-5 bg-blue-grey">
+          <p class="mb-0 h4">租客入住期间</p>
+        </div>
+
+        <div class="px-3">
+          <p class="h4 mt-3">
+            请来信咨询管理费率
+          </p>
+
+          <ul class="pl-3 mt-4" style="line-height: 1.7rem;">
+            <li>收租</li>
+            <li>为月租金、水电费和租客维修开发票</li>
+            <li>维修协调</li>
+            <li>24小时租客服务中心</li>
+            <li>租客解约搬出时文件准备和屋况检查</li>
+            <li>搬出后安排屋子修复工作</li>
+            <li>租客押金结算</li>
+            <li>年度税务和收入报告</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="text-center py-5 mb-5 bg-blue-grey">
+          <p class="mb-0 h4">现金管理</p>
+        </div>
+
+        <div class="px-3">
+          <p class="h4 mt-3">
+            包含管理费中
+          </p>
+
+          <ul class="pl-3 mt-4" style="line-height: 1.7rem;">
+            <li>虛擬銀行帳戶(HJ主帳戶下附屬專用的日本銀行帳戶)</li>
+            <li>現金流管理</li>
+            <li>月度報告</li>
+            <li>稅務管理安排</li>
+            <li>多國語言稅務師推薦</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-body__cn">
+    <h2 class="about__heading heading__highlight text-center">渡假房屋管理</h2>
+    <h2 class="about__content heading__light mb-5">
+      我們替屋主提供全面的維護服務，包括檢查、
+      维修和清洁，以保持您的物业处于良好状态。
+    </h2>
+
+    <img src="/wp-content/themes/hj-wp/images/pm-chinese/holiday-home-management.jpg" alt="渡假房屋管理" class="my-4">
+
+    <h2 class="mb-5 text-center">
+      <span class="about__heading">服务 + 收费</span> <br>
+      <span class="about__content">渡假房屋管理</span>
+    </h2>
+
+    <div class="row">
+      <div class="col-md-4 mb-4 mb-md-0">
+        <div class="text-center py-5 mb-5 bg-blue-grey">
+          <p class="mb-0 h4">初期家具家电设置</p>
+        </div>
+
+        <div class="px-3">
+          <p class="h4 mt-3">
+            100,000日元 + 消费税<br>
+            (一次性费用)
+          </p>
+
+          <ul class="pl-3 mt-4" style="line-height: 1.7rem;">
+            <li>水电瓦斯开通</li>
+            <li>网络和电视安装</li>
+            <li>税务管理申请</li>
+            <li>保险申请</li>
+            <li>提交文件给大楼管理公司</li>
+            <li>开设虚拟银行账户</li>
+            <li>业主要求的其他安装服务</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="col-md-4 mb-4 mb-md-0">
+        <div class="text-center py-5 mb-5 bg-blue-grey">
+          <p class="mb-0 h4">基本每月运作</p>
+        </div>
+
+        <div class="px-3">
+          <p class="h4 mt-3">
+            每月25,000日元 + 消费税
+          </p>
+
+          <ul class="pl-3 mt-4" style="line-height: 1.7rem;">
+            <li>水电瓦斯费支付</li>
+            <li>每月报告银行对账单、费用报表、维修履历等</li>
+            <li>税务管理</li>
+            <li>协调屋子清理</li>
+            <li>维修协调</li>
+            <li>中英文服务</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="text-center py-5 mb-5 bg-blue-grey">
+          <p class="mb-0 h4">选配服务</p>
+        </div>
+
+        <div class="px-3">
+          <p class="h4 mt-3">
+            空屋检查 <br>
+            10,000日元 + 消费税 (根据业主要求)
+          </p>
+
+          <ul class="pl-3 mt-4" style="line-height: 1.7rem;">
+            <li>物业检查（通风、排水和电器设备功能确认）</li>
+            <li>报告</li>
+            <li>邮箱检查</li>
+            <li>紧急检查（在自然灾害和意外事件的情况下）</li>
+            <li>照片存档</li>
+          </ul>
+        </div>
+
+        <div class="px-3">
+          <p class="h4 mt-3">
+            屋子清理服务 <br>
+            每次3小时15,000日元~ (含消费税) / 应业主要求
+          </p>
+
+
+
+          <ul class="pl-3 mt-4" style="line-height: 1.7rem;">
+            <li>一般清洁：安排一次性或定期的一般房屋清洁</li>
+            <li>床铺清洁：安排干洗、床单清洗和铺床等服务</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-body__cn">
+    <h2 class="mb-4 text-center">
+      <span class="about__heading">管理现状</span>
+    </h2>
+
+    <div class="row pt-4">
+      <div class="col-md-4 d-flex flex-column align-items-center justify-content-start text-center mb-4 mb-md-0">
+        <p class="mb-0 mb-md-4" style="font-size: 80px; font-weight: 400;">450</p>
+        <p class="h4">管理户数</p>
+      </div>
+      <div class="col-md-4 d-flex flex-column align-items-center justify-content-start text-center mb-4 mb-md-0">
+        <p class="mb-0 mb-md-4" style="font-size: 80px; font-weight: 400;">220</p>
+        <p class="h4">海外客户数</p>
+      </div>
+      <div class="col-md-4 d-flex flex-column align-items-center justify-content-start text-center mb-4 mb-md-0">
+        <p class="mb-0 mb-md-4" style="font-size: 80px; font-weight: 400;">95%+</p>
+        <p class="h4">
+          保持高入住率 <br>
+          *东京的平均入住率约为90%
+        </p>
+      </div>
+    </div>
+
+    <div class="row mt-5">
+      <div class="col-md-6 col-lg-4 property__showcase--cn">
+        <img src="/wp-content/themes/hj-wp/images/pm-chinese/properties/the-park-house-nishiazabu.webp" alt="The Park House Nishiazabu">
+        <p class="h4 mt-4">THE PARK HOUSE <br> NISHIAZABU RESIDENCE</p>
+        <hr>
+        <p>东京都港区西麻布4-5-10</p>
+        <p>高级住宅管理</p>
+      </div>
+
+      <div class="col-md-6 col-lg-4 property__showcase--cn">
+        <img src="/wp-content/themes/hj-wp/images/pm-chinese/properties/park-mansion-mita.webp" alt="Park Mansion Mita">
+        <p class="h4 mt-4">PARK MANSION MITA <br> TSUNAMACHI THE FOREST</p>
+        <hr>
+        <p>东京都港区三田2-1-28</p>
+        <p>高级住宅管理</p>
+      </div>
+
+      <div class="col-md-6 col-lg-4 property__showcase--cn">
+        <img src="/wp-content/themes/hj-wp/images/pm-chinese/properties/roppongi-residence.jpg" alt="Roppongi Hills Residence">
+        <p class="h4 mt-4">ROPPONGI HILLS <br> RESIDENCE</p>
+        <hr>
+        <p>东京都港区六本木6-12-3</p>
+        <p>高级住宅管理</p>
+      </div>
+
+      <div class="col-md-6 col-lg-4 property__showcase--cn">
+        <img src="/wp-content/themes/hj-wp/images/pm-chinese/properties/proud-minami-aoyama.webp" alt="Proud Minamiaoyama">
+        <p class="h4 mt-4">PROUD <br> MINAMIAOYAMA</p>
+        <hr>
+        <p>东京都港区南青山5-5-12</p>
+        <p>高级住宅管理</p>
+      </div>
+
+      <div class="col-md-6 col-lg-4 property__showcase--cn">
+        <img src="/wp-content/themes/hj-wp/images/pm-chinese/properties/shibuya-house.jpg" alt="Stylish Home in Shibuya">
+        <p class="h4 mt-4">STYLISH HOME IN <br> SHIBUYA</p>
+        <hr>
+        <p>东京都涩谷区</p>
+        <p>独栋住宅管理</p>
+      </div>
+
+      <div class="col-md-6 col-lg-4 property__showcase--cn">
+        <img src="/wp-content/themes/hj-wp/images/pm-chinese/properties/space-roppongi.jpg" alt="Space Roppongi">
+        <p class="h4 mt-4">SPACE <br> ROPPONGI</p>
+        <hr>
+        <p>东京都港区六本木</p>
+        <p>整栋物业管理</p>
+      </div>
+    </div>
+  </div>
+
+  <a href="#newsroom" class="skip-to-main-content-link">Skip to next section</a>
+      
+
+<!-- Related Resources -->
+<div class="my-5 resources">
+      <h2 class="resources__heading">参考资料<span>相关</span></h2>
+  
+  <div class="cntr-related-resources-carousel">
+    <div class="row">
+      <div class="swiper-container-resources swiper-container-initialized swiper-container-horizontal">
+        <div class="swiper-wrapper" style="transform: translate3d(-1995px, 0px, 0px); transition-duration: 0ms;"><div class="swiper-slide related-resources-carousel swiper-slide-duplicate" data-swiper-slide-index="1" style="width: 285px;">
+              <a href="/?page_id=51465">
+                                  <img src="/wp-content/uploads/2023/04/12140011/customer-service-min.jpg" style="height: 160px">
+                              </a>
+              <div class="py-3 pr-4">
+                <p class="mb-2 post-categories">
+                                      <span><a href="/resources/#manage">Manage</a>  </span>
+                                  </p>
+                <a href="/?page_id=51465">
+                  </a><h4 style="font-weight: 300; font-size: 16px;"><a href="/?page_id=51465"></a><a href="/?page_id=51465" style="color: #000000;">Property Management Service | 24h Bilingual Tenant Support</a></h4>
+                
+              </div>
+            </div><div class="swiper-slide related-resources-carousel swiper-slide-duplicate swiper-slide-duplicate-prev" data-swiper-slide-index="2" style="width: 285px;">
+              <a href="/?page_id=51479">
+                                  <img src="/wp-content/uploads/2023/04/25111237/spacejoy-lK1YVtpTE8E-unsplash-3-scaled-min-1024x576.jpg" style="height: 160px">
+                              </a>
+              <div class="py-3 pr-4">
+                <p class="mb-2 post-categories">
+                                      <span><a href="/resources/#manage">Manage</a>  </span>
+                                  </p>
+                <a href="/?page_id=51479">
+                  </a><h4 style="font-weight: 300; font-size: 16px;"><a href="/?page_id=51479"></a><a href="/?page_id=51479" style="color: #000000;">Guide to Renting Out Your Tokyo Property</a></h4>
+                
+              </div>
+            </div><div class="swiper-slide related-resources-carousel swiper-slide-duplicate swiper-slide-duplicate-active" data-swiper-slide-index="3" style="width: 285px;">
+              <a href="/?page_id=51494">
+                                  <img src="/wp-content/uploads/2023/04/25112602/investment-tracker-for-property-management-1024x664-1-edited.jpg" style="height: 160px">
+                              </a>
+              <div class="py-3 pr-4">
+                <p class="mb-2 post-categories">
+                                      <span><a href="/resources/#invest">Invest</a> • </span>
+                                      <span><a href="/resources/#manage">Manage</a>  </span>
+                                  </p>
+                <a href="/?page_id=51494">
+                  </a><h4 style="font-weight: 300; font-size: 16px;"><a href="/?page_id=51494"></a><a href="/?page_id=51494" style="color: #000000;">Professional Investment Property Tracker Service</a></h4>
+                
+              </div>
+            </div><div class="swiper-slide related-resources-carousel swiper-slide-duplicate swiper-slide-duplicate-next" data-swiper-slide-index="4" style="width: 285px;">
+              <a href="/?page_id=51501">
+                                  <img src="/wp-content/uploads/2023/04/25113531/spacejoy-4xRP0Ajk9ys-unsplash-scaled-min-1024x576.jpg" style="height: 160px">
+                              </a>
+              <div class="py-3 pr-4">
+                <p class="mb-2 post-categories">
+                                      <span><a href="/resources/#manage">Manage</a>  </span>
+                                  </p>
+                <a href="/?page_id=51501">
+                  </a><h4 style="font-weight: 300; font-size: 16px;"><a href="/?page_id=51501"></a><a href="/?page_id=51501" style="color: #000000;">Ultimate Guide To Renting A Tokyo Property</a></h4>
+                
+              </div>
+            </div>
+                      <div class="swiper-slide related-resources-carousel" data-swiper-slide-index="0" style="width: 285px;">
+              <a href="/?page_id=51453">
+                                  <img src="/wp-content/uploads/2023/04/25104224/hands-free-property-management-service-edited-scaled-min-1024x576.jpeg" style="height: 160px">
+                              </a>
+              <div class="py-3 pr-4">
+                <p class="mb-2 post-categories">
+                                      <span><a href="/resources/#buy">Buy</a> • </span>
+                                      <span><a href="/resources/#manage">Manage</a>  </span>
+                                  </p>
+                <a href="/?page_id=51453">
+                  </a><h4 style="font-weight: 300; font-size: 16px;"><a href="/?page_id=51453"></a><a href="/?page_id=51453" style="color: #000000;">Hands Free Property Management Service</a></h4>
+                
+              </div>
+            </div>
+                      <div class="swiper-slide related-resources-carousel" data-swiper-slide-index="1" style="width: 285px;">
+              <a href="/?page_id=51465">
+                                  <img src="/wp-content/uploads/2023/04/12140011/customer-service-min.jpg" style="height: 160px">
+                              </a>
+              <div class="py-3 pr-4">
+                <p class="mb-2 post-categories">
+                                      <span><a href="/resources/#manage">Manage</a>  </span>
+                                  </p>
+                <a href="/?page_id=51465">
+                  </a><h4 style="font-weight: 300; font-size: 16px;"><a href="/?page_id=51465"></a><a href="/?page_id=51465" style="color: #000000;">Property Management Service | 24h Bilingual Tenant Support</a></h4>
+                
+              </div>
+            </div>
+                      <div class="swiper-slide related-resources-carousel swiper-slide-prev" data-swiper-slide-index="2" style="width: 285px;">
+              <a href="/?page_id=51479">
+                                  <img src="/wp-content/uploads/2023/04/25111237/spacejoy-lK1YVtpTE8E-unsplash-3-scaled-min-1024x576.jpg" style="height: 160px">
+                              </a>
+              <div class="py-3 pr-4">
+                <p class="mb-2 post-categories">
+                                      <span><a href="/resources/#manage">Manage</a>  </span>
+                                  </p>
+                <a href="/?page_id=51479">
+                  </a><h4 style="font-weight: 300; font-size: 16px;"><a href="/?page_id=51479"></a><a href="/?page_id=51479" style="color: #000000;">Guide to Renting Out Your Tokyo Property</a></h4>
+                
+              </div>
+            </div>
+                      <div class="swiper-slide related-resources-carousel swiper-slide-active" data-swiper-slide-index="3" style="width: 285px;">
+              <a href="/?page_id=51494">
+                                  <img src="/wp-content/uploads/2023/04/25112602/investment-tracker-for-property-management-1024x664-1-edited.jpg" style="height: 160px">
+                              </a>
+              <div class="py-3 pr-4">
+                <p class="mb-2 post-categories">
+                                      <span><a href="/resources/#invest">Invest</a> • </span>
+                                      <span><a href="/resources/#manage">Manage</a>  </span>
+                                  </p>
+                <a href="/?page_id=51494">
+                  </a><h4 style="font-weight: 300; font-size: 16px;"><a href="/?page_id=51494"></a><a href="/?page_id=51494" style="color: #000000;">Professional Investment Property Tracker Service</a></h4>
+                
+              </div>
+            </div>
+                      <div class="swiper-slide related-resources-carousel swiper-slide-next" data-swiper-slide-index="4" style="width: 285px;">
+              <a href="/?page_id=51501">
+                                  <img src="/wp-content/uploads/2023/04/25113531/spacejoy-4xRP0Ajk9ys-unsplash-scaled-min-1024x576.jpg" style="height: 160px">
+                              </a>
+              <div class="py-3 pr-4">
+                <p class="mb-2 post-categories">
+                                      <span><a href="/resources/#manage">Manage</a>  </span>
+                                  </p>
+                <a href="/?page_id=51501">
+                  </a><h4 style="font-weight: 300; font-size: 16px;"><a href="/?page_id=51501"></a><a href="/?page_id=51501" style="color: #000000;">Ultimate Guide To Renting A Tokyo Property</a></h4>
+                
+              </div>
+            </div>
+                  <div class="swiper-slide related-resources-carousel swiper-slide-duplicate" data-swiper-slide-index="0" style="width: 285px;">
+              <a href="/?page_id=51453">
+                                  <img src="/wp-content/uploads/2023/04/25104224/hands-free-property-management-service-edited-scaled-min-1024x576.jpeg" style="height: 160px">
+                              </a>
+              <div class="py-3 pr-4">
+                <p class="mb-2 post-categories">
+                                      <span><a href="/resources/#buy">Buy</a> • </span>
+                                      <span><a href="/resources/#manage">Manage</a>  </span>
+                                  </p>
+                <a href="/?page_id=51453">
+                  </a><h4 style="font-weight: 300; font-size: 16px;"><a href="/?page_id=51453"></a><a href="/?page_id=51453" style="color: #000000;">Hands Free Property Management Service</a></h4>
+                
+              </div>
+            </div><div class="swiper-slide related-resources-carousel swiper-slide-duplicate" data-swiper-slide-index="1" style="width: 285px;">
+              <a href="/?page_id=51465">
+                                  <img src="/wp-content/uploads/2023/04/12140011/customer-service-min.jpg" style="height: 160px">
+                              </a>
+              <div class="py-3 pr-4">
+                <p class="mb-2 post-categories">
+                                      <span><a href="/resources/#manage">Manage</a>  </span>
+                                  </p>
+                <a href="/?page_id=51465">
+                  </a><h4 style="font-weight: 300; font-size: 16px;"><a href="/?page_id=51465"></a><a href="/?page_id=51465" style="color: #000000;">Property Management Service | 24h Bilingual Tenant Support</a></h4>
+                
+              </div>
+            </div><div class="swiper-slide related-resources-carousel swiper-slide-duplicate swiper-slide-duplicate-prev" data-swiper-slide-index="2" style="width: 285px;">
+              <a href="/?page_id=51479">
+                                  <img src="/wp-content/uploads/2023/04/25111237/spacejoy-lK1YVtpTE8E-unsplash-3-scaled-min-1024x576.jpg" style="height: 160px">
+                              </a>
+              <div class="py-3 pr-4">
+                <p class="mb-2 post-categories">
+                                      <span><a href="/resources/#manage">Manage</a>  </span>
+                                  </p>
+                <a href="/?page_id=51479">
+                  </a><h4 style="font-weight: 300; font-size: 16px;"><a href="/?page_id=51479"></a><a href="/?page_id=51479" style="color: #000000;">Guide to Renting Out Your Tokyo Property</a></h4>
+                
+              </div>
+            </div><div class="swiper-slide related-resources-carousel swiper-slide-duplicate swiper-slide-duplicate-active" data-swiper-slide-index="3" style="width: 285px;">
+              <a href="/?page_id=51494">
+                                  <img src="/wp-content/uploads/2023/04/25112602/investment-tracker-for-property-management-1024x664-1-edited.jpg" style="height: 160px">
+                              </a>
+              <div class="py-3 pr-4">
+                <p class="mb-2 post-categories">
+                                      <span><a href="/resources/#invest">Invest</a> • </span>
+                                      <span><a href="/resources/#manage">Manage</a>  </span>
+                                  </p>
+                <a href="/?page_id=51494">
+                  </a><h4 style="font-weight: 300; font-size: 16px;"><a href="/?page_id=51494"></a><a href="/?page_id=51494" style="color: #000000;">Professional Investment Property Tracker Service</a></h4>
+                
+              </div>
+            </div></div>
+        <div class="swiper-button-next top-25" tabindex="0" role="button" aria-label="Next slide"></div>
+        <div class="swiper-button-prev top-25" tabindex="0" role="button" aria-label="Previous slide"></div>
+        <div class="swiper-pagination swiper-pagination-clickable swiper-pagination-bullets"><span class="swiper-pagination-bullet" tabindex="0" role="button" aria-label="Go to slide 1"></span><span class="swiper-pagination-bullet" tabindex="0" role="button" aria-label="Go to slide 2"></span><span class="swiper-pagination-bullet" tabindex="0" role="button" aria-label="Go to slide 3"></span><span class="swiper-pagination-bullet swiper-pagination-bullet-active" tabindex="0" role="button" aria-label="Go to slide 4"></span><span class="swiper-pagination-bullet" tabindex="0" role="button" aria-label="Go to slide 5"></span></div>
+      <span class="swiper-notification" aria-live="assertive" aria-atomic="true"></span></div>
+    </div>
+  </div>
+
+
+  <script>
+    let shouldLoopResources = true;
+    if (5 <= 3) {
+      shouldLoopResources = false;
+    }
+
+    // Setup swiper
+    const resourcesSwiper = new Swiper('.swiper-container-resources', {
+      // Optional parameters
+      slidesPerView: 4,
+      spaceBetween: 0,
+      direction: 'horizontal',
+      autoplay: {
+        delay: 2500,
+        disableOnInteraction: true,
+      },
+      loop: shouldLoopResources,
+      breakpoints: {
+        767: {
+          slidesPerView: 1,
+        },
+        991: {
+          slidesPerView: 2,
+        },
+        1919: {
+          slidesPerView: 4,
+        }
+      },
+      pagination: {
+        el: '.swiper-pagination',
+        clickable: true,
+      },
+      navigation: {
+        nextEl: ".swiper-button-next",
+        prevEl: ".swiper-button-prev",
+      },
+      observer: true,
+      observeParents: true,
+
+    });
+  </script>  
+  <!-- NEWSROOM -->
+  </div>
+
+<div class="modal fade" id="secondaryModal" tabindex="-1" aria-labelledby="secondaryModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body">
+        <div class="w-sm-85 mx-auto" id="hj-management-inquiry-modal">
+          <div class="d-flex justify-content-between align-items-center">
+            <p class="h2 text-center">物业管理咨询</p>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+          </div>
+
+          <p>请填写表格，我们的专员将与您联系。</p>
+
+          <form role="form">
+            <div class="row">
+              <div class="col-12">
+                <div class="row">
+                  <div class="form-group input-group d-flex flex-column col-md-6 pr-md-1">
+                    <label for="field-first_name">名字</label>
+                    <input type="text" class="form-control rounded-0 text-muted w-100" id="field-first_name" name="first_name" maxlength="64" autocomplete="given-name" required="">
+                  </div>
+                  <div class="form-group input-group d-flex flex-column col-md-6 pl-md-1">
+                    <label for="field-last_name">姓</label>
+                    <input type="text" class="form-control rounded-0 text-muted w-100" id="field-last_name" name="last_name" maxlength="64" autocomplete="family-name" required="">
+                  </div>
+                </div>
+                <div class="form-group input-group d-flex flex-column">
+                  <label for="field-email">电子邮件</label>
+                  <input type="email" class="form-control rounded-0 text-muted w-100" id="field-email" name="email" maxlength="255" autocomplete="email" required="">
+                </div>
+                <div class="form-group input-group d-flex flex-column">
+                  <label for="field-telephone">电话</label>
+                  <input type="tel" class="form-control rounded-0 text-muted w-100" id="field-telephone" name="telephone" maxlength="20" autocomplete="tel" pattern="[\d+\(\)\-. ]+">
+                </div>
+              </div>
+              <div class="col-12">
+                                <div id="investment-property-type" class="form-group input-group-sm mt-3 d-none">
+                  <p class="mb-1">我有兴趣了解:(请选择一个)</p>
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="investment_property_type" value="investment-small" id="investment-small">
+                    <label class="form-check-label font-weight-normal" for="investment-small">
+                      投资物业（公寓单位或独栋房屋）
+                    </label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="investment_property_type" value="investment-building" id="investment-building">
+                    <label class="form-check-label font-weight-normal" for="investment-building">
+                      投资整栋物业
+                    </label>
+                  </div>
+                </div>
+                <p id="investment-property-type__error" class="text-danger d-none">Please select an investment type.</p>
+                <div class="form-group input-group-sm">
+                  <label for="field-message">我想咨询</label>
+                  <textarea id="field-message" class="form-control rounded-0" name="message"></textarea>
+                </div>
+                <p class="small text-right">所有字段均为必须填写项目</p>
+              </div>
+            </div>
+
+            <div class="submit">
+              <div class="form-group checkbox text-center">
+                <label class="control-label">
+                  <input type="checkbox" name="terms" value="1" required="">
+                  <a href="/inquiry-terms-conditions/" target="_blank" rel="noopener noreferrer">我同意条款和条件</a>
+                </label>
+              </div>
+
+              <div class="form-group text-center">
+                <button type="submit" class="btn btn-lg btn-primary" id="submit">发送咨询</button>
+              </div>
+            </div>
+          </form>
+
+          <div data-part="msg" class="cntr-msg"></div>
+
+          <script type="text/template" id="tmpl-msg-error-send">
+            <div class="alert alert-danger text-center">
+              There was an error sending your inquiry. Please try again.            </div>
+          </script>
+          <script type="text/template" id="tmpl-msg-error-field">
+            <div class="alert alert-danger text-center">
+              Please fill out all fields correctly.            </div>
+          </script>
+          <script type="text/template" id="tmpl-msg-info-already-received">
+            <div class="alert alert-info text-center">
+              <p>We've already received your inquiry for this property!</p>
+            </div>
+           </script>
+          <script type="text/template" id="tmpl-msg-success-send">
+            <div class="alert alert-success text-center">
+              <p>Your inquiry has been sent successfully. We'll get back to you as soon as possible!</p>
+            </div>
+          </script>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  jQuery(document).ready(function() {
+    // Create inquiry form config
+    const inquiryFormConfig = {
+      el: document.getElementById('hj-management-inquiry-modal'),
+      api_client_id: 'HJ_EN',
+      inquiry_type: 'property-management',
+      page_url: window.location.href,
+      page_title: document.title,
+      google_site_key: '6Le_6fsrAAAAAA1CIbs3Nfv_k4ugcUcCDO6aj7pH'
+    };
+
+    // Use select option value as inquiry type if header contact modal
+    
+            
+    // Create inquiry form view and attach to the options form element
+    const inquiryForm = new HJ.Views.InquiryForm(inquiryFormConfig);
+  });
+</script>
+
+
+<script src="/wp-content/themes/hj-wp/src/js/animations/hero-section.js"></script>
+<script src="/wp-content/themes/hj-wp/src/js/animations/about-section.js"></script>
+<script src="/wp-content/themes/hj-wp/src/js/animations/banner.js"></script>
+
+
+</div>
+
+<!-- Set modal target based on page -->
+<script>
+    const elementsToSwitch = document.querySelectorAll("[data-switch='true']")
+
+    if (document.getElementById('secondaryModal')) {
+        elementsToSwitch.forEach((el) => {
+            el.dataset.target = '#secondaryModal';
+        })
+    } else {
+        elementsToSwitch.forEach((el) => {
+            el.dataset.target = '#contactModal';
+        })
+    }
+</script>
+
+<footer id="footer">
+                        
+<div class="py-4 font-cn" style="background: #FFF;">
+    <div id="newsletter-footer-container" class="container">
+        <div id="newsletter-form-footer" class="newsletter-form">
+            <h3 class="mb-3"><span class="text-primary">将每周房产介绍</span>寄到您的电邮中</h3>
+            <p class="w-lg-50">保持领先地位，立即订阅，成为第一个获得市场上最豪华物业独家信息的人。</p>
+            <form role="form" class="d-flex flex-column">
+                <div class="form-group">
+                    <label class="sr-only" for="field-name">姓名</label>
+                    <input id="field-name" type="text" class="form-control mw-md-75 mw-lg-50" name="name" placeholder="姓名" maxlength="255" autocomplete="name" required="">
+                </div>
+                <div class="form-group">
+                    <label class="sr-only" for="field-email">电邮</label>
+                    <input id="field-email" type="email" class="form-control mw-md-75 mw-lg-50" name="email" placeholder="电邮" maxlength="255" autocomplete="email" required="">
+                </div>
+                <div class="form-group">
+                    <label class="col-form-label">请向我发送以下信息：</label>
+                    <p id="interestError" class="d-none text-danger" style="font-size: 12px;">请至少选择一个选项。</p>
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input id="field_luxury" class="form-check-input" name="newsletter-interest" type="checkbox" value="Luxury Tokyo Real Estate">
+                            <label class="form-check-label" for="field_luxury">东京不动产豪宅</label>
+                        </div>
+                        <div class="form-check">
+                            <input id="field_resort" class="form-check-input" name="newsletter-interest" type="checkbox" value="Resort Properties">
+                            <label class="form-check-label" for="field_resort">度假村物业</label>
+                        </div>
+                        <div class="form-check">
+                            <input id="field_investment" class="form-check-input" name="newsletter-interest" type="checkbox" value="Investment Real Estate">
+                            <label class="form-check-label" for="field_investment">投资房地产</label>
+                        </div>
+                        <div class="form-check">
+                            <input id="field_rental" class="form-check-input" name="newsletter-interest" type="checkbox" value="Properties for Rent">
+                            <label class="form-check-label" for="field_rental">出租物业</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">立即注册</button>
+                </div>
+            </form>
+            <div data-part="msg"></div>
+
+            <script type="text/template" id="tmpl-msg-error-send">
+                <div class="alert alert-danger text-center">
+                    There was an error subscribing to the newsletter. Please try again.                </div>
+            </script>
+            <script type="text/template" id="tmpl-msg-success-send">
+                <div class="alert alert-success text-center">
+                    Thank you                </div>
+            </script>
+            <script>
+                jQuery(function() {
+                    // Create BB newsletter view and attach to #newsletter-form-footer
+                    const newsletterForm = new HJ.Views.NewsletterForm({
+                        el: document.getElementById('newsletter-form-footer'),
+                        list: 'sales',
+                        platform: 'ws', // Website
+                        google_site_key: '6Le_6fsrAAAAAA1CIbs3Nfv_k4ugcUcCDO6aj7pH'
+                    });
+                });
+            </script>
+        </div>
+    </div>
+</div>                <div class="container mt-5" id="contactFooter">
+        <div class="row justify-content-between">
+            <div class="col-12 col-md-6 row order-1 order-md-2">
+                <div class="col-4 contact-section">
+                    <h5 class="mb-3">Services</h5>
+                    <ul>
+                        <li><a href="/buy/">Buy</a></li>
+                        <li><a href="/sell/">Sell</a></li>
+                        <li><a href="/rent/">Rent</a></li>
+                        <li><a href="/property-management/">Manage</a></li>
+                        <li><a href="/investment-properties/">Invest</a></li>
+                        <li><a href="/short-term/">Short-Term</a></li>
+                        <li><a href="/resorts/">Resort Property</a></li>
+                        <li><a href="/project-marketing/">Project Marketing</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-4 contact-section">
+                    <h5 class="mb-3">Insights</h5>
+                    <ul>
+                        <li><a href="/area-guides/">Area Guides</a></li>
+                        <li><a href="/resources/">Resources</a></li>
+                        <li><a href="/blog/">Newsroom</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-4 contact-section">
+                    <h5 class="mb-3">Company</h5>
+                    <ul class="contact">
+                        <li><a href="/about/">About Us</a></li>
+                        <li><a href="/about/access">Access</a></li>
+                        <li><a href="/about/careers/">Careers</a></li>
+                        <li><a href="/about/contact/">Contact</a></li>
+                        <li><a href="https://resort-japan.com/" target="_blank" rel="noopener noreferrer">Resort Japan</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-12 col-md-5 d-flex flex-column justify-content-end order-2 order-md-1">
+                <a href="https://goo.gl/maps/f1bAgW3c89HGnH6j9" target="_blank" class="mw-content" rel="noopener noreferrer">
+                    Housing Japan KK <br> 1-11-9 Azabudai, Minato-ku, <br> Tokyo, Japan 106-0032                </a>
+
+                <ul class="social pull-right mw-sm-75">
+                    <li><a href="https://www.facebook.com/TokyoHomes"><i class="fa fa fa-facebook"></i><span class="d-none">Facebook</span></a></li>
+                    <li><a href="https://twitter.com/housingjapan"><i class="fa fa fa-twitter"></i><span class="d-none">Twitter</span></a></li>
+                    <li><a href="https://www.youtube.com/channel/UCfq7sNnyj8_yW1yHmHGGpRA"><i class="fa fa fa-youtube-play"></i><span class="d-none">YouTube</span></a></li>
+                    <li><a href="https://www.linkedin.com/company/housing-japan/"><i class="fa fa fa-linkedin"></i><span class="d-none">LinkedIn</span></a></li>
+                    <li><a href="https://www.pinterest.jp/housingjapan/"><i class="fa fa fa-pinterest"></i><span class="d-none">Pinterest</span></a></li>
+                                            <li><a href="https://www.instagram.com/housingjapan"><i class="fa fa fa-instagram"></i><span class="d-none">Instagram</span></a></li>
+                                    </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-5" id="siteFooter">
+        <div class="row">
+            <div class="col-12 col-lg-7 mx-auto text-center">
+                <ul id="menu-footer-menu" class="footer-links"><li id="menu-item-23923" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-23923"><a href="https://housingjapan.co.jp/">日本語のサイトへ</a></li>
+<li id="menu-item-32140" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-32140"><a href="/privacy-policy/">Statement on Protection of Personal Information</a></li>
+</ul>            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-12 text-center mb-3">
+                <p class="mb-0">Copyright ©2026 <a href="/">Housing Japan K.K.</a> All Rights Reserved。版权所有 © Housing Japan K.K. 保留所有权利</p>
+            </div>
+            <div class="col-lg-8 mx-auto text-center">
+                <small>本サイトの掲載内容（画像、文章等）の一部及び全てについて、複製、転載、転用、改変等の二次利用を固く禁じます。上記著作権の無断複製、転載、転用、改変等が判明した場合は、法的措置をとる場合がございます。</small>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script type="speculationrules">
+{"prefetch":[{"source":"document","where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":["/wp-*.php","/wp-admin/*","/wp-content/uploads/*","/wp-content/*","/wp-content/plugins/*","/wp-content/themes/hj-wp/*","/*\\?(.+)"]}},{"not":{"selector_matches":"a[rel~=\"nofollow\"]"}},{"not":{"selector_matches":".no-prefetch, .no-prefetch a"}}]},"eagerness":"conservative"}]}
+</script>
+        <style>
+                    </style>
+
+		<!-- Google Tag Manager (noscript) snippet added by Site Kit -->
+		<noscript>
+			<iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PM3NCG2" height="0" width="0" style="display:none;visibility:hidden"></iframe>
+		</noscript>
+		<!-- End Google Tag Manager (noscript) snippet added by Site Kit -->
+		<script src="/wp-includes/js/dist/hooks.min.js" id="wp-hooks-js"></script>
+<script src="/wp-includes/js/dist/i18n.min.js" id="wp-i18n-js"></script>
+<script id="wp-i18n-js-after">
+wp.i18n.setLocaleData( { 'text direction\u0004ltr': [ 'ltr' ] } );
+//# sourceURL=wp-i18n-js-after
+</script>
+<script src="/wp-content/plugins/contact-form-7/includes/swv/js/index.js" id="swv-js"></script>
+<script id="contact-form-7-js-before">
+var wpcf7 = {
+    "api": {
+        "root": "https:\/\/housingjapan.com\/wp-json\/",
+        "namespace": "contact-form-7\/v1"
+    },
+    "cached": 1
+};
+//# sourceURL=contact-form-7-js-before
+</script>
+<script src="/wp-content/plugins/contact-form-7/includes/js/index.js" id="contact-form-7-js"></script>
+<script src="/turnstile/v0/api.js" id="cloudflare-turnstile-js" data-wp-strategy="async"></script>
+<script id="cloudflare-turnstile-js-after">
+document.addEventListener( 'wpcf7submit', e => turnstile.reset() );
+//# sourceURL=cloudflare-turnstile-js-after
+</script>
+<script id="layerslider-utils-js-extra">
+var LS_Meta = {"v":"8.1.2","fixGSAP":"1"};
+//# sourceURL=layerslider-utils-js-extra
+</script>
+<script src="/wp-content/plugins/LayerSlider/assets/static/layerslider/js/layerslider.utils.js" id="layerslider-utils-js"></script>
+<script src="/wp-content/plugins/LayerSlider/assets/static/layerslider/js/layerslider.kreaturamedia.jquery.js" id="layerslider-js"></script>
+<script src="/wp-content/plugins/LayerSlider/assets/static/layerslider/js/layerslider.transitions.js" id="layerslider-transitions-js"></script>
+
+
+
+
+</div><div class="modal-backdrop fade show"></div></body></html>

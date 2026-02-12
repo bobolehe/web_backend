@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkapifox_renderer=self.webpackChunkapifox_renderer||[]).push([["54740"],{643496:function(e,r,n){n.r(r),n.d(r,{default:()=>i});var t=n(838e3),a=n(496411),c=n(618487);let i=e=>(0,a.mY)()?(0,t.jsx)(t.Fragment,{children:e.children}):(0,t.jsx)(c.Redirect,{to:{pathname:"/user/login",search:`redirect=${encodeURIComponent(window.location.href)}`}})}}]);
