@@ -12,7 +12,7 @@ import socket
 import ssl
 import urllib.request
 import urllib.error
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 
 from app.logger import logger
 
@@ -152,10 +152,31 @@ class ProxyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             req = urllib.request.Request(target_url, data=body, method=method)
 
             # 复制请求头（排除一些不需要的头）
-            skip_headers = ["host", "connection", "content-length"]
+            # 同时也排除 accept-encoding 以避免服务器返回压缩内容，方便直接缓存
+            skip_headers = [
+                "host",
+                "connection",
+                "content-length",
+                "accept-encoding",
+                "referer",
+                "origin",
+            ]
             for key, value in self.headers.items():
                 if key.lower() not in skip_headers:
                     req.add_header(key, value)
+
+            # 伪造 Referer 和 Origin 以绕过防盗链
+            req.add_header("Referer", self.source_url)
+            parsed_source = urlparse(self.source_url)
+            origin = f"{parsed_source.scheme}://{parsed_source.netloc}"
+            req.add_header("Origin", origin)
+
+            # 如果没有 User-Agent，添加一个默认的
+            if "user-agent" not in self.headers:
+                req.add_header(
+                    "User-Agent",
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+                )
 
             # 创建忽略 SSL 证书验证的上下文
             ssl_ctx = ssl.create_default_context()
@@ -176,8 +197,25 @@ class ProxyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
 
                 # 发送响应头
                 for key, value in response.headers.items():
-                    if key.lower() not in ["transfer-encoding", "connection"]:
+                    # 跳过一些可能导致问题的头
+                    # 同时也跳过 content-encoding 因为我们请求的是未压缩内容
+                    # 跳过源站的 CORS 头，避免冲突
+                    # 跳过 content-length，因为我们会重新计算
+                    skip_response_headers = [
+                        "transfer-encoding",
+                        "connection",
+                        "content-encoding",
+                        "content-length",
+                        "access-control-allow-origin",
+                        "access-control-allow-methods",
+                        "access-control-allow-headers",
+                        "access-control-allow-credentials",
+                    ]
+                    if key.lower() not in skip_response_headers:
                         self.send_header(key, value)
+
+                # 添加 Content-Length
+                self.send_header("Content-Length", str(len(response_body)))
 
                 # 添加 CORS 头
                 self.send_header("Access-Control-Allow-Origin", "*")

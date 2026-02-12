@@ -61,3 +61,5 @@ Thumbs.db
 
 # Alembic
 alembic/versions/*.pyc
+
+cloned_sites/
